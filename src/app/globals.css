@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #12121a;
+  --color-bg-tertiary: #1a1a25;
+  --color-bg-hover: #22222f;
+  --color-border: #2a2a3a;
+  --color-border-light: #3a3a4a;
+  --color-text-primary: #e8e8ed;
+  --color-text-secondary: #9898a8;
+  --color-text-muted: #686878;
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* FullCalendar dark theme overrides */
+.fc {
+  --fc-border-color: var(--color-border);
+  --fc-button-bg-color: var(--color-bg-tertiary);
+  --fc-button-border-color: var(--color-border);
+  --fc-button-text-color: var(--color-text-primary);
+  --fc-button-hover-bg-color: var(--color-bg-hover);
+  --fc-button-hover-border-color: var(--color-border-light);
+  --fc-button-active-bg-color: var(--color-accent);
+  --fc-button-active-border-color: var(--color-accent);
+  --fc-today-bg-color: rgba(99, 102, 241, 0.1);
+  --fc-neutral-bg-color: var(--color-bg-secondary);
+  --fc-page-bg-color: var(--color-bg-primary);
+  --fc-event-bg-color: var(--color-accent);
+  --fc-event-border-color: var(--color-accent);
+}
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-timegrid-slot-label-cushion {
+  color: var(--color-text-secondary);
+}
