@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAgents } from '@/lib/agents';
 import { getDb, type Project } from '@/lib/db';
 import { getMemorySources } from '@/lib/memory';
+import { getCronSummary } from '@/lib/crons';
 
 export async function GET() {
   try {
@@ -46,11 +47,7 @@ export async function GET() {
       projectsByStatus: statusCounts,
       recentProjects,
       agents: agents.map((a) => ({ id: a.id, name: a.name })),
-      cronsSummary: {
-        total: 5,
-        active: 4,
-        paused: 1,
-      },
+      cronsSummary: getCronSummary(),
     });
   } catch (error) {
     return NextResponse.json(

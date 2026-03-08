@@ -62,7 +62,7 @@ export default function OfficePage() {
           </h1>
           <p className="text-text-secondary text-sm mt-1">
             {loading ? (
-              <Skeleton className="h-3 w-56 inline-block" />
+              <Skeleton className="h-3 w-56 inline-block" as="span" />
             ) : (
               <>
                 {agents.length} agents in the office — drag to orbit, scroll to zoom

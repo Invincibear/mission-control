@@ -1,6 +1,6 @@
-export function Skeleton({ className = '' }: { className?: string }) {
+export function Skeleton({ className = '', as: Tag = 'div' }: { className?: string; as?: 'div' | 'span' }) {
   return (
-    <div
+    <Tag
       className={`animate-pulse bg-zinc-800/60 rounded ${className}`}
     />
   );
