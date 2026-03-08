@@ -9,9 +9,11 @@ import {
   ChevronDown,
   Brain,
   X,
+  Loader2,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Skeleton, SkeletonText } from '@/components/skeleton';
 
 interface MemoryFile {
   name: string;
@@ -34,6 +36,23 @@ interface SearchResult {
   agentId: string;
   file: string;
   matches: string[];
+}
+
+function FileTreeSkeleton() {
+  return (
+    <div className="p-3 space-y-1">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="mb-3">
+          <Skeleton className="h-4 w-20 mb-2" />
+          <div className="pl-4 space-y-1">
+            {[...Array(4)].map((_, j) => (
+              <Skeleton key={j} className="h-4 w-32" />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function FileTree({
@@ -113,10 +132,7 @@ export default function MemoryPage() {
 
   useEffect(() => {
     fetch('/api/memory')
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
+      .then((r) => r.json())
       .then(setSources)
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -149,17 +165,6 @@ export default function MemoryPage() {
     }
     setSearching(false);
   };
-
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-32 bg-bg-tertiary rounded" />
-          <div className="h-[500px] bg-bg-tertiary rounded-lg" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-8 h-[calc(100vh-0px)] flex flex-col">
@@ -199,7 +204,14 @@ export default function MemoryPage() {
       {searchResults !== null ? (
         <div className="flex-1 overflow-y-auto bg-bg-secondary border border-border rounded-lg p-4">
           <h3 className="text-sm font-medium mb-3">
-            {searching ? 'Searching...' : `${searchResults.length} results`}
+            {searching ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Searching...
+              </span>
+            ) : (
+              `${searchResults.length} results`
+            )}
           </h3>
           {searchResults.map((result, i) => (
             <div key={i} className="mb-3 p-3 bg-bg-tertiary rounded-lg">
@@ -232,27 +244,34 @@ export default function MemoryPage() {
                 <span className="text-sm font-medium">Memory Files</span>
               </div>
             </div>
-            <div className="p-2">
-              {sources.map((source) => (
-                <div key={source.agentId} className="mb-2">
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-mono text-text-muted uppercase tracking-wide">
-                    <FolderOpen className="w-3.5 h-3.5" />
-                    {source.agentName}
+            {loading ? (
+              <FileTreeSkeleton />
+            ) : (
+              <div className="p-2">
+                {sources.map((source) => (
+                  <div key={source.agentId} className="mb-2">
+                    <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-mono text-text-muted uppercase tracking-wide">
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      {source.agentName}
+                    </div>
+                    <FileTree
+                      files={source.files}
+                      agentId={source.agentId}
+                      onSelect={selectFile}
+                    />
                   </div>
-                  <FileTree
-                    files={source.files}
-                    agentId={source.agentId}
-                    onSelect={selectFile}
-                  />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Content Viewer */}
           <div className="flex-1 bg-bg-secondary border border-border rounded-lg overflow-y-auto">
             {fileLoading ? (
-              <div className="p-8 text-center text-text-muted">Loading...</div>
+              <div className="p-6">
+                <Skeleton className="h-3 w-48 mb-4" />
+                <SkeletonText lines={8} />
+              </div>
             ) : selectedFile ? (
               <div className="p-6">
                 <div className="text-xs font-mono text-text-muted mb-4 pb-2 border-b border-border truncate">
