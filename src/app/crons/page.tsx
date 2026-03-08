@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Clock, Play, Pause, RefreshCw } from 'lucide-react';
+import { SkeletonRow } from '@/components/skeleton';
 
 interface CronJob {
   id: string;
@@ -38,22 +39,14 @@ export default function CronsPage() {
 
   useEffect(() => {
     fetch('/api/crons')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(setCrons)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-32 bg-bg-tertiary rounded" />
-          <div className="h-64 bg-bg-tertiary rounded-lg" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-8 max-w-5xl">
@@ -74,43 +67,52 @@ export default function CronsPage() {
             </tr>
           </thead>
           <tbody>
-            {crons.map((cron) => (
-              <tr key={cron.id} className="border-b border-border last:border-b-0 hover:bg-bg-hover transition-colors">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-text-muted" />
-                    <span className="text-sm font-medium">{cron.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <code className="text-xs font-mono bg-bg-tertiary px-2 py-1 rounded text-text-secondary">
-                    {cron.schedule}
-                  </code>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1.5">
-                    <RefreshCw className="w-3 h-3 text-text-muted" />
-                    <span className="text-sm text-text-secondary">{timeAgo(cron.lastRun)}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-text-secondary">{timeUntil(cron.nextRun)}</span>
-                </td>
-                <td className="px-4 py-3">
-                  {cron.status === 'active' ? (
-                    <span className="inline-flex items-center gap-1 text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
-                      <Play className="w-3 h-3" />
-                      Active
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full">
-                      <Pause className="w-3 h-3" />
-                      Paused
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <>
+                <tr><td colSpan={5}><SkeletonRow /></td></tr>
+                <tr><td colSpan={5}><SkeletonRow /></td></tr>
+                <tr><td colSpan={5}><SkeletonRow /></td></tr>
+                <tr><td colSpan={5}><SkeletonRow /></td></tr>
+              </>
+            ) : (
+              crons.map((cron) => (
+                <tr key={cron.id} className="border-b border-border last:border-b-0 hover:bg-bg-hover transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-text-muted" />
+                      <span className="text-sm font-medium">{cron.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <code className="text-xs font-mono bg-bg-tertiary px-2 py-1 rounded text-text-secondary">
+                      {cron.schedule}
+                    </code>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <RefreshCw className="w-3 h-3 text-text-muted" />
+                      <span className="text-sm text-text-secondary">{timeAgo(cron.lastRun)}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm text-text-secondary">{timeUntil(cron.nextRun)}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {cron.status === 'active' ? (
+                      <span className="inline-flex items-center gap-1 text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
+                        <Play className="w-3 h-3" />
+                        Active
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full">
+                        <Pause className="w-3 h-3" />
+                        Paused
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

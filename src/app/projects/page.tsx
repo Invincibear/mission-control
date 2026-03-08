@@ -27,6 +27,7 @@ import {
   ArrowDown,
   Minus,
 } from 'lucide-react';
+import { Skeleton } from '@/components/skeleton';
 
 interface Project {
   id: string;
@@ -187,6 +188,32 @@ function AddProjectForm({
   );
 }
 
+function KanbanSkeleton() {
+  return (
+    <div className="flex-1 flex gap-4 overflow-x-auto pb-4">
+      {COLUMNS.map((column) => (
+        <div key={column.id} className="w-64 shrink-0 flex flex-col">
+          <div className={`flex items-center justify-between mb-3 pb-2 border-b-2 ${column.color}`}>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium">{column.label}</h3>
+              <Skeleton className="h-4 w-5 rounded" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[...Array(column.id === 'active' ? 2 : column.id === 'todo' ? 1 : 0)].map((_, i) => (
+              <div key={i} className="bg-bg-primary border border-border rounded-lg p-3">
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-3 w-full mb-1" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -246,7 +273,6 @@ export default function ProjectsPage() {
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
 
-    // Check if dragging over a column
     const overColumn = COLUMNS.find((c) => c.id === over.id);
     const overProject = projects.find((p) => p.id === over.id);
     const targetStatus = overColumn?.id || overProject?.status;
@@ -270,21 +296,6 @@ export default function ProjectsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-32 bg-bg-tertiary rounded" />
-          <div className="flex gap-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-96 w-64 bg-bg-tertiary rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const activeProject = activeId ? projects.find((p) => p.id === activeId) : null;
 
   return (
@@ -294,84 +305,85 @@ export default function ProjectsPage() {
         <p className="text-text-secondary text-sm mt-1">Manage your projects with drag-and-drop</p>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex-1 flex gap-4 overflow-x-auto pb-4">
-          {COLUMNS.map((column) => {
-            const columnProjects = projects.filter((p) => p.status === column.id);
-            return (
-              <div
-                key={column.id}
-                className="w-64 shrink-0 flex flex-col"
-              >
-                <div className={`flex items-center justify-between mb-3 pb-2 border-b-2 ${column.color}`}>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-medium">{column.label}</h3>
-                    <span className="text-xs font-mono text-text-muted bg-bg-tertiary px-1.5 py-0.5 rounded">
-                      {columnProjects.length}
-                    </span>
+      {loading ? (
+        <KanbanSkeleton />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex-1 flex gap-4 overflow-x-auto pb-4">
+            {COLUMNS.map((column) => {
+              const columnProjects = projects.filter((p) => p.status === column.id);
+              return (
+                <div key={column.id} className="w-64 shrink-0 flex flex-col">
+                  <div className={`flex items-center justify-between mb-3 pb-2 border-b-2 ${column.color}`}>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-medium">{column.label}</h3>
+                      <span className="text-xs font-mono text-text-muted bg-bg-tertiary px-1.5 py-0.5 rounded">
+                        {columnProjects.length}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setAddingTo(addingTo === column.id ? null : column.id)}
+                      className="text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setAddingTo(addingTo === column.id ? null : column.id)}
-                    className="text-text-muted hover:text-text-primary transition-colors"
+
+                  <SortableContext
+                    id={column.id}
+                    items={columnProjects.map((p) => p.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                    <div className="flex-1 space-y-2 min-h-[100px]">
+                      {addingTo === column.id && (
+                        <AddProjectForm
+                          status={column.id}
+                          onAdd={addProject}
+                          onCancel={() => setAddingTo(null)}
+                        />
+                      )}
+                      {columnProjects.map((project) => (
+                        <ProjectCard
+                          key={project.id}
+                          project={project}
+                          onDelete={deleteProject}
+                          isDragging={activeId === project.id}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
                 </div>
+              );
+            })}
+          </div>
 
-                <SortableContext
-                  id={column.id}
-                  items={columnProjects.map((p) => p.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="flex-1 space-y-2 min-h-[100px]">
-                    {addingTo === column.id && (
-                      <AddProjectForm
-                        status={column.id}
-                        onAdd={addProject}
-                        onCancel={() => setAddingTo(null)}
-                      />
+          <DragOverlay>
+            {activeProject ? (
+              <div className="bg-bg-primary border border-accent rounded-lg p-3 shadow-lg shadow-accent/20 rotate-2 w-64">
+                <div className="flex items-start gap-2">
+                  <GripVertical className="w-3.5 h-3.5 text-text-muted mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-medium">{activeProject.title}</h3>
+                    {activeProject.description && (
+                      <p className="text-xs text-text-muted mt-1 line-clamp-2">
+                        {activeProject.description}
+                      </p>
                     )}
-                    {columnProjects.map((project) => (
-                      <ProjectCard
-                        key={project.id}
-                        project={project}
-                        onDelete={deleteProject}
-                        isDragging={activeId === project.id}
-                      />
-                    ))}
                   </div>
-                </SortableContext>
-              </div>
-            );
-          })}
-        </div>
-
-        <DragOverlay>
-          {activeProject ? (
-            <div className="bg-bg-primary border border-accent rounded-lg p-3 shadow-lg shadow-accent/20 rotate-2 w-64">
-              <div className="flex items-start gap-2">
-                <GripVertical className="w-3.5 h-3.5 text-text-muted mt-0.5" />
-                <div>
-                  <h3 className="text-sm font-medium">{activeProject.title}</h3>
-                  {activeProject.description && (
-                    <p className="text-xs text-text-muted mt-1 line-clamp-2">
-                      {activeProject.description}
-                    </p>
-                  )}
                 </div>
               </div>
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
 
-      {projects.length === 0 && !addingTo && (
+      {!loading && projects.length === 0 && !addingTo && (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />

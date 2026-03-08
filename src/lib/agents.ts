@@ -44,7 +44,7 @@ export function getAgents(): AgentDef[] {
   const defaultAgent: AgentDef = {
     id: 'cass',
     name: 'Cass',
-    workspace: defaults.workspace,
+    workspace: defaults.workspace.replace('~', homedir()),
     model: defaults.model,
     heartbeat: defaults.heartbeat,
   };

@@ -38,7 +38,10 @@ export default function OfficePage() {
 
   useEffect(() => {
     fetch('/api/agents')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(setAgents)
       .catch(console.error)
       .finally(() => setLoading(false));

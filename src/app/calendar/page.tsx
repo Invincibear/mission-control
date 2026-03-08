@@ -1,11 +1,19 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import FullCalendar from '@fullcalendar/react';
+import { Skeleton } from '@/components/skeleton';
+import dynamic from 'next/dynamic';
+import type { EventInput } from '@fullcalendar/core';
+
+const FullCalendar = dynamic(
+  () => import('@fullcalendar/react').then((mod) => mod.default),
+  { ssr: false, loading: () => <Skeleton className="h-[600px] w-full rounded-lg" /> }
+);
+
+// These need to be imported at the top level for the dynamic calendar
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import type { EventInput } from '@fullcalendar/core';
 
 interface CronJob {
   id: string;
@@ -50,13 +58,14 @@ function projectToEvents(projects: Project[]): EventInput[] {
 export default function CalendarPage() {
   const [events, setEvents] = useState<EventInput[]>([]);
   const [loading, setLoading] = useState(true);
-  const calendarRef = useRef<FullCalendar>(null);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/crons').then((r) => r.json()),
-      fetch('/api/projects').then((r) => r.json()),
-    ])
+    const safeFetch = (url: string) =>
+      fetch(url).then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      });
+    Promise.all([safeFetch('/api/crons'), safeFetch('/api/projects')])
       .then(([crons, projects]) => {
         const allEvents = [
           ...cronToEvents(crons),
@@ -68,17 +77,6 @@ export default function CalendarPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-32 bg-bg-tertiary rounded" />
-          <div className="h-[600px] bg-bg-tertiary rounded-lg" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -87,21 +85,24 @@ export default function CalendarPage() {
       </div>
 
       <div className="bg-bg-secondary border border-border rounded-lg p-4">
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay',
-          }}
-          events={events}
-          height="auto"
-          editable={false}
-          selectable={true}
-          dayMaxEvents={3}
-        />
+        {loading ? (
+          <Skeleton className="h-[600px] w-full rounded-lg" />
+        ) : (
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            events={events}
+            height="auto"
+            editable={false}
+            selectable={true}
+            dayMaxEvents={3}
+          />
+        )}
       </div>
 
       <div className="mt-4 flex items-center gap-4 text-xs text-text-muted">

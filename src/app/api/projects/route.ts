@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb, type Project } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
+const VALID_STATUSES = ['concept', 'todo', 'active', 'in-review', 'done'] as const;
+const VALID_PRIORITIES = ['low', 'medium', 'high', 'critical'] as const;
+
 export async function GET() {
   try {
     const db = getDb();
@@ -23,6 +26,22 @@ export async function POST(request: NextRequest) {
     const db = getDb();
     const id = uuidv4();
 
+    const status = body.status || 'concept';
+    const priority = body.priority || 'medium';
+
+    if (!VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+    if (!VALID_PRIORITIES.includes(priority)) {
+      return NextResponse.json(
+        { error: `Invalid priority. Must be one of: ${VALID_PRIORITIES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
     const maxPos = db
       .prepare('SELECT MAX(position) as maxPos FROM projects WHERE status = ?')
       .get(body.status || 'concept') as { maxPos: number | null };
@@ -36,8 +55,8 @@ export async function POST(request: NextRequest) {
       id,
       body.title || 'Untitled',
       body.description || '',
-      body.status || 'concept',
-      body.priority || 'medium',
+      status,
+      priority,
       body.assignee || null,
       position
     );
@@ -59,6 +78,19 @@ export async function PUT(request: NextRequest) {
 
     if (!body.id) {
       return NextResponse.json({ error: 'Missing project id' }, { status: 400 });
+    }
+
+    if (body.status && !VALID_STATUSES.includes(body.status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+    if (body.priority && !VALID_PRIORITIES.includes(body.priority)) {
+      return NextResponse.json(
+        { error: `Invalid priority. Must be one of: ${VALID_PRIORITIES.join(', ')}` },
+        { status: 400 }
+      );
     }
 
     const fields: string[] = [];
