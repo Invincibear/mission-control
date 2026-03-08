@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Building2, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/skeleton';
+import { useAgentStatus } from '@/lib/use-agent-status';
 
 const OfficeScene = dynamic(() => import('@/components/office/scene'), {
   ssr: false,
@@ -30,21 +31,26 @@ const AGENT_COLORS = [
 export default function OfficePage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const liveStatuses = useAgentStatus();
 
   useEffect(() => {
     fetch('/api/agents')
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then(setAgents)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const agentData = agents.map((agent, i) => ({
-    id: agent.id,
-    name: agent.name,
-    color: AGENT_COLORS[i % AGENT_COLORS.length],
-    isWorking: Math.random() > 0.4,
-  }));
+  // Merge agent definitions with live statuses
+  const agentData = agents.map((agent, i) => {
+    const liveStatus = liveStatuses.find((s) => s.id === agent.id);
+    return {
+      id: agent.id,
+      name: agent.name,
+      color: AGENT_COLORS[i % AGENT_COLORS.length],
+      isWorking: liveStatus?.isWorking ?? false,
+    };
+  });
 
   return (
     <div className="h-full flex flex-col">
@@ -58,7 +64,10 @@ export default function OfficePage() {
             {loading ? (
               <Skeleton className="h-3 w-56 inline-block" />
             ) : (
-              <>{agents.length} agents in the office — drag to orbit, scroll to zoom</>
+              <>
+                {agents.length} agents in the office — drag to orbit, scroll to zoom
+                <span className="ml-2 text-[10px] text-success/60 uppercase tracking-wider">● live</span>
+              </>
             )}
           </p>
         </div>
@@ -79,8 +88,10 @@ export default function OfficePage() {
                   style={{ backgroundColor: agent.color }}
                 />
                 <span className="font-mono text-text-secondary">{agent.name}</span>
-                {agent.isWorking && (
-                  <span className="text-[9px] text-success uppercase tracking-wider">working</span>
+                {agent.isWorking ? (
+                  <span className="text-[9px] text-success uppercase tracking-wider animate-pulse">working</span>
+                ) : (
+                  <span className="text-[9px] text-text-muted uppercase tracking-wider">idle</span>
                 )}
               </div>
             ))

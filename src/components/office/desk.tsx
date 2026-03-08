@@ -4,138 +4,93 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
+import AgentAvatar from './agent-avatar';
 
 interface DeskProps {
   position: [number, number, number];
   agentName: string;
+  agentId: string;
   agentColor: string;
   isWorking: boolean;
   rotation?: [number, number, number];
 }
 
-function Monitor({ position }: { position: [number, number, number] }) {
+function Monitor({
+  position,
+  isWorking,
+  color,
+}: {
+  position: [number, number, number];
+  isWorking: boolean;
+  color: string;
+}) {
+  const screenRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!screenRef.current) return;
+    const mat = screenRef.current.material as THREE.MeshStandardMaterial;
+    if (isWorking) {
+      const t = clock.getElapsedTime();
+      mat.emissiveIntensity = 0.8 + Math.sin(t * 2) * 0.2;
+    } else {
+      mat.emissiveIntensity = 0.15;
+    }
+  });
+
   return (
     <group position={position}>
+      {/* Monitor stand */}
       <mesh position={[0, -0.15, 0]}>
-        <boxGeometry args={[0.04, 0.3, 0.04]} />
-        <meshStandardMaterial color="#22222f" />
+        <cylinderGeometry args={[0.02, 0.025, 0.3, 8]} />
+        <meshStandardMaterial color="#2a2a35" metalness={0.6} roughness={0.3} />
       </mesh>
-      <mesh position={[0, -0.3, 0.05]}>
-        <boxGeometry args={[0.15, 0.02, 0.1]} />
-        <meshStandardMaterial color="#22222f" />
+      {/* Stand base */}
+      <mesh position={[0, -0.3, 0.03]}>
+        <boxGeometry args={[0.12, 0.01, 0.08]} />
+        <meshStandardMaterial color="#2a2a35" metalness={0.6} roughness={0.3} />
       </mesh>
+      {/* Screen bezel */}
       <mesh>
-        <boxGeometry args={[0.5, 0.32, 0.02]} />
-        <meshStandardMaterial color="#12121a" />
+        <boxGeometry args={[0.5, 0.32, 0.015]} />
+        <meshStandardMaterial color="#1a1a22" metalness={0.3} roughness={0.5} />
       </mesh>
-      <mesh position={[0, 0, 0.011]}>
-        <planeGeometry args={[0.45, 0.27]} />
+      {/* Screen */}
+      <mesh ref={screenRef} position={[0, 0, 0.009]}>
+        <planeGeometry args={[0.46, 0.28]} />
         <meshStandardMaterial
-          color="#0a1628"
-          emissive="#1a3a6a"
-          emissiveIntensity={0.6}
+          color={isWorking ? '#0e1a30' : '#080c14'}
+          emissive={isWorking ? color : '#111828'}
+          emissiveIntensity={isWorking ? 0.8 : 0.15}
         />
       </mesh>
     </group>
   );
 }
 
-function AgentAvatar({
-  color,
-  name,
-  isWorking,
-}: {
-  color: string;
-  name: string;
-  isWorking: boolean;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const t = clock.getElapsedTime();
-    if (isWorking) {
-      groupRef.current.position.y = Math.sin(t * 4) * 0.008;
-    } else {
-      groupRef.current.position.y = Math.sin(t * 1.5) * 0.012;
-    }
-  });
-
+function Keyboard() {
   return (
-    <group ref={groupRef}>
-      <mesh position={[0, 0.55, 0]} castShadow>
-        <boxGeometry args={[0.28, 0.35, 0.18]} />
-        <meshStandardMaterial color={color} />
+    <group position={[0, 0.76, 0.12]}>
+      <mesh>
+        <boxGeometry args={[0.3, 0.008, 0.1]} />
+        <meshStandardMaterial color="#1e1e28" metalness={0.2} roughness={0.6} />
       </mesh>
-      <mesh position={[0, 0.85, 0]} castShadow>
-        <boxGeometry args={[0.2, 0.2, 0.18]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[-0.04, 0.87, 0.091]}>
-        <planeGeometry args={[0.04, 0.04]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      <mesh position={[0.04, 0.87, 0.091]}>
-        <planeGeometry args={[0.04, 0.04]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      <mesh position={[-0.04, 0.87, 0.092]}>
-        <planeGeometry args={[0.02, 0.02]} />
-        <meshBasicMaterial color="#12121a" />
-      </mesh>
-      <mesh position={[0.04, 0.87, 0.092]}>
-        <planeGeometry args={[0.02, 0.02]} />
-        <meshBasicMaterial color="#12121a" />
-      </mesh>
-      <mesh position={[-0.2, 0.5, 0.05]} castShadow>
-        <boxGeometry args={[0.08, 0.25, 0.08]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0.2, 0.5, 0.05]} castShadow>
-        <boxGeometry args={[0.08, 0.25, 0.08]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <Text
-        position={[0, 1.1, 0]}
-        fontSize={0.09}
-        color="#e8e8ed"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {name}
-      </Text>
-      {isWorking && (
-        <mesh position={[0, 1.25, 0]}>
-          <sphereGeometry args={[0.03, 8, 8]} />
-          <meshStandardMaterial
-            color="#22c55e"
-            emissive="#22c55e"
-            emissiveIntensity={2}
-          />
+      {/* Key rows (subtle details) */}
+      {[0.03, 0.01, -0.01, -0.03].map((z, i) => (
+        <mesh key={i} position={[0, 0.005, z]}>
+          <boxGeometry args={[0.26, 0.003, 0.015]} />
+          <meshStandardMaterial color="#252530" />
         </mesh>
-      )}
+      ))}
     </group>
   );
 }
 
-function Chair() {
+function Mouse() {
   return (
-    <group position={[0, 0, 0.65]}>
-      <mesh position={[0, 0.42, 0]}>
-        <boxGeometry args={[0.35, 0.04, 0.35]} />
-        <meshStandardMaterial color="#1e1e2e" />
-      </mesh>
-      <mesh position={[0, 0.68, -0.16]}>
-        <boxGeometry args={[0.35, 0.48, 0.04]} />
-        <meshStandardMaterial color="#1e1e2e" />
-      </mesh>
-      <mesh position={[0, 0.22, 0]}>
-        <cylinderGeometry args={[0.025, 0.025, 0.4, 6]} />
-        <meshStandardMaterial color="#3a3a4a" />
-      </mesh>
-      <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.04, 8]} />
-        <meshStandardMaterial color="#3a3a4a" />
+    <group position={[0.32, 0.76, 0.12]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <capsuleGeometry args={[0.015, 0.03, 6, 8]} />
+        <meshStandardMaterial color="#1e1e28" metalness={0.2} roughness={0.5} />
       </mesh>
     </group>
   );
@@ -144,16 +99,20 @@ function Chair() {
 export default function Desk({
   position,
   agentName,
+  agentId,
   agentColor,
   isWorking,
   rotation = [0, 0, 0],
 }: DeskProps) {
   return (
     <group position={position} rotation={rotation}>
-      <mesh position={[0, 0.72, 0]} castShadow>
-        <boxGeometry args={[1.6, 0.05, 0.7]} />
-        <meshStandardMaterial color="#2a2a3a" />
+      {/* Desk surface */}
+      <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.6, 0.04, 0.7]} />
+        <meshStandardMaterial color="#3a3545" metalness={0.1} roughness={0.7} />
       </mesh>
+
+      {/* Desk legs - metal */}
       {(
         [
           [-0.72, 0.36, -0.3],
@@ -163,25 +122,41 @@ export default function Desk({
         ] as [number, number, number][]
       ).map((pos, i) => (
         <mesh key={i} position={pos}>
-          <boxGeometry args={[0.04, 0.72, 0.04]} />
-          <meshStandardMaterial color="#1a1a25" />
+          <boxGeometry args={[0.035, 0.72, 0.035]} />
+          <meshStandardMaterial color="#2a2a35" metalness={0.7} roughness={0.3} />
         </mesh>
       ))}
-      <Monitor position={[-0.3, 1.08, -0.15]} />
-      <Monitor position={[0.3, 1.08, -0.15]} />
-      <mesh position={[0, 0.76, 0.1]}>
-        <boxGeometry args={[0.35, 0.015, 0.12]} />
-        <meshStandardMaterial color="#12121a" />
+
+      {/* Modesty panel */}
+      <mesh position={[0, 0.4, -0.32]}>
+        <boxGeometry args={[1.5, 0.6, 0.015]} />
+        <meshStandardMaterial color="#2a2535" metalness={0.1} roughness={0.8} />
       </mesh>
-      <mesh position={[0.35, 0.76, 0.1]}>
-        <boxGeometry args={[0.05, 0.015, 0.08]} />
-        <meshStandardMaterial color="#12121a" />
-      </mesh>
-      <Chair />
-      <group position={[0, 0, 0.6]}>
+
+      {/* Monitors */}
+      <Monitor position={[-0.3, 1.08, -0.15]} isWorking={isWorking} color={agentColor} />
+      <Monitor position={[0.3, 1.08, -0.15]} isWorking={isWorking} color={agentColor} />
+
+      <Keyboard />
+      <Mouse />
+
+      {/* Name plate on desk edge */}
+      <Text
+        position={[0, 0.75, 0.34]}
+        fontSize={0.05}
+        color="#888898"
+        anchorX="center"
+        anchorY="middle"
+        font={undefined}
+      >
+        {agentName}
+      </Text>
+
+      {/* Agent standing behind desk */}
+      <group position={[0, 0, 0.7]}>
         <AgentAvatar
           color={agentColor}
-          name={agentName}
+          agentId={agentId}
           isWorking={isWorking}
         />
       </group>
