@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -28,10 +28,14 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  // Default collapsed on mobile (< 768px)
-  const [collapsed, setCollapsed] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
-  );
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Collapse on narrow viewports after mount to avoid hydration mismatch
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setCollapsed(true);
+    }
+  }, []);
 
   return (
     <aside

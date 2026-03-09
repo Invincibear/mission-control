@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 
@@ -88,6 +88,8 @@ function getPayloadPreview(payload: CronJobRaw['payload']): string {
 }
 
 export function getCronJobs(): CronJob[] {
+  if (!existsSync(CRON_JOBS_PATH)) return [];
+
   const raw = readFileSync(CRON_JOBS_PATH, 'utf-8');
   const data = JSON.parse(raw) as { version: number; jobs: CronJobRaw[] };
 

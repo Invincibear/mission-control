@@ -117,7 +117,11 @@ export async function PUT(request: NextRequest) {
     fields.push("updated_at = datetime('now')");
     values.push(body.id);
 
-    db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    const result = db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+
+    if (result.changes === 0) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
 
     const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(body.id) as Project;
     return NextResponse.json(project);
@@ -139,7 +143,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     const db = getDb();
-    db.prepare('DELETE FROM projects WHERE id = ?').run(id);
+    const result = db.prepare('DELETE FROM projects WHERE id = ?').run(id);
+
+    if (result.changes === 0) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(

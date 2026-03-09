@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { homedir } from 'os';
 
-const OPENCLAW_DIR = path.join(process.env.HOME || '', '.openclaw');
+export const dynamic = 'force-dynamic';
+
+const OPENCLAW_DIR = path.join(homedir(), '.openclaw');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 // Consider "working" if activity within last 15 seconds
 const ACTIVE_THRESHOLD_MS = 15_000;
