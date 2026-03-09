@@ -11,6 +11,7 @@ interface GLBAvatarProps {
   agentId?: string;
   isWorking?: boolean;
   position?: [number, number, number];
+  scale?: number;
 }
 
 function getModelPath(agentId?: string): string {
@@ -27,6 +28,7 @@ function LoadedAvatar({
 }: GLBAvatarProps & { modelPath: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const isCass = agentId === 'cass' || agentId === 'main';
+  const userScale = props.scale ?? 1;
   const { scene, animations } = useGLTF(modelPath);
   const { actions, names } = useAnimations(animations, groupRef);
 
@@ -101,8 +103,8 @@ function LoadedAvatar({
   return (
     <group ref={groupRef} position={position}>
       <group
-        scale={[scaleFactor, scaleFactor, scaleFactor]}
-        position={[0, offsetY, 0]}
+        scale={[scaleFactor * userScale, scaleFactor * userScale, scaleFactor * userScale]}
+        position={[0, offsetY * userScale, 0]}
       >
         <primitive object={scene} />
       </group>
