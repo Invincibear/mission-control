@@ -445,6 +445,24 @@ function Whiteboard({ position }: { position: [number, number, number] }) {
 
 /* ---- BOOKSHELF ---- */
 function Bookshelf({ position }: { position: [number, number, number] }) {
+  // Pre-compute book layouts to avoid randomness on every render
+  const shelves = useMemo(() => {
+    const colors = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7', '#334155'];
+    // Simple seeded pseudo-random for deterministic results
+    let seed = 42;
+    const rand = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; };
+    return [-0.6, -0.2, 0.2, 0.6].map((y) => {
+      const bookCount = 4 + Math.floor(rand() * 3);
+      const books = Array.from({ length: bookCount }).map((_, j) => ({
+        x: -0.4 + j * 0.14,
+        width: 0.08 + rand() * 0.04,
+        height: 0.16 + rand() * 0.04,
+        color: colors[Math.floor(rand() * colors.length)],
+      }));
+      return { y, books };
+    });
+  }, []);
+
   return (
     <group position={position}>
       {/* Shelf frame */}
@@ -453,27 +471,20 @@ function Bookshelf({ position }: { position: [number, number, number] }) {
         <meshStandardMaterial color="#d4c8b8" roughness={0.8} />
       </mesh>
       {/* Shelves */}
-      {[-0.6, -0.2, 0.2, 0.6].map((y, i) => (
+      {shelves.map((shelf, i) => (
         <group key={i}>
-          <mesh position={[0, y, 0]}>
+          <mesh position={[0, shelf.y, 0]}>
             <boxGeometry args={[1.15, 0.02, 0.28]} />
             <meshStandardMaterial color="#e0d8c8" roughness={0.7} />
           </mesh>
           {/* Books */}
-          {Array.from({ length: 4 + Math.floor(Math.random() * 3) }).map((_, j) => (
+          {shelf.books.map((book, j) => (
             <mesh
               key={j}
-              position={[-0.4 + j * 0.14, y + 0.1, 0]}
+              position={[book.x, shelf.y + 0.1, 0]}
             >
-              <boxGeometry args={[0.08 + Math.random() * 0.04, 0.16 + Math.random() * 0.04, 0.18]} />
-              <meshStandardMaterial
-                color={
-                  ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7', '#334155'][
-                    Math.floor(Math.random() * 7)
-                  ]
-                }
-                roughness={0.8}
-              />
+              <boxGeometry args={[book.width, book.height, 0.18]} />
+              <meshStandardMaterial color={book.color} roughness={0.8} />
             </mesh>
           ))}
         </group>

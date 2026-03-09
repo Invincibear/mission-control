@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { homedir } from 'os';
+import { safeErrorMessage } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,7 +91,7 @@ export async function GET() {
     return NextResponse.json({ agents: statuses, timestamp: now });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to read agent status' },
+      { error: 'Failed to read agent status', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }

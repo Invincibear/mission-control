@@ -50,6 +50,7 @@ const COLUMNS = [
 ];
 
 const priorityIcons: Record<string, React.ReactNode> = {
+  critical: <AlertCircle className="w-3 h-3 text-error" />,
   high: <ArrowUp className="w-3 h-3 text-error" />,
   medium: <Minus className="w-3 h-3 text-warning" />,
   low: <ArrowDown className="w-3 h-3 text-info" />,

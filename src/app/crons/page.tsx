@@ -246,6 +246,11 @@ function CronRow({
     <>
       <tr
         onClick={onToggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        aria-label={`${expanded ? 'Collapse' : 'Expand'} ${cron.name} details`}
         className="border-b border-border last:border-b-0 hover:bg-bg-hover transition-colors cursor-pointer"
       >
         <td className="px-4 py-3">
