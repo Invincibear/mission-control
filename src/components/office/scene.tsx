@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Text, Sky } from '@react-three/drei';
 import * as THREE from 'three';
 import Desk from './desk';
+import ExecutiveDesk from './executive-desk';
 
 interface AgentInfo {
   id: string;
@@ -221,9 +222,9 @@ function Plant({
 }
 
 /* ---- TALL PLANT (fiddle leaf / ficus style) ---- */
-function TallPlant({ position }: { position: [number, number, number] }) {
+function TallPlant({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   return (
-    <group position={position}>
+    <group position={position} scale={scale}>
       {/* Pot */}
       <mesh position={[0, 0.18, 0]} castShadow>
         <cylinderGeometry args={[0.16, 0.12, 0.36, 12]} />
@@ -487,13 +488,13 @@ interface OfficeSceneProps {
 }
 
 function SceneContent({ agents }: OfficeSceneProps) {
+  // Team desks — back rows (Cass gets the executive desk up front)
   const deskPositions: [number, number, number][] = [
-    [-3.5, 0, 1],
-    [0, 0, 1],
-    [3.5, 0, 1],
-    [-3.5, 0, -1.5],
-    [0, 0, -1.5],
-    [3.5, 0, -1.5],
+    [-3.5, 0, -1],
+    [3.5, 0, -1],
+    [-3.5, 0, -3.5],
+    [3.5, 0, -3.5],
+    [0, 0, -3.5],
   ];
 
   return (
@@ -530,22 +531,38 @@ function SceneContent({ agents }: OfficeSceneProps) {
 
       {/* NO ceiling — open top for brightness */}
 
-      {/* ---- DESKS ---- */}
-      {agents.map((agent, i) => {
-        const pos = deskPositions[i % deskPositions.length];
-        const isFrontRow = pos[2] > 0;
+      {/* ---- CASS'S EXECUTIVE DESK (center front, facing the team) ---- */}
+      {(() => {
+        const cass = agents.find((a) => a.id === 'main' || a.id === 'cass');
+        const others = agents.filter((a) => a.id !== 'main' && a.id !== 'cass');
         return (
-          <Desk
-            key={agent.id}
-            position={pos}
-            agentName={agent.name}
-            agentId={agent.id}
-            agentColor={agent.color}
-            isWorking={agent.isWorking}
-            rotation={isFrontRow ? [0, Math.PI, 0] : [0, 0, 0]}
-          />
+          <>
+            {cass && (
+              <ExecutiveDesk
+                position={[0, 0, 3.5]}
+                agentName={cass.name}
+                agentId={cass.id}
+                agentColor={cass.color}
+                isWorking={cass.isWorking}
+              />
+            )}
+            {others.map((agent, i) => {
+              const pos = deskPositions[i % deskPositions.length];
+              return (
+                <Desk
+                  key={agent.id}
+                  position={pos}
+                  agentName={agent.name}
+                  agentId={agent.id}
+                  agentColor={agent.color}
+                  isWorking={agent.isWorking}
+                  rotation={[0, 0, 0]}
+                />
+              );
+            })}
+          </>
         );
-      })}
+      })()}
 
       {/* ---- FURNITURE ---- */}
       <SharedTable />
@@ -553,15 +570,16 @@ function SceneContent({ agents }: OfficeSceneProps) {
       <CoffeeStation />
       <Whiteboard position={[-2, 2.5, -7.95]} />
 
-      {/* ---- PLANTS ---- */}
-      <Plant position={[-6, 0, 2]} size={1.2} />
-      <Plant position={[6, 0, 2]} size={1} potColor="#e0d0c0" />
-      <Plant position={[-1.5, 0, 3]} size={0.7} potColor="#c8a880" />
-      <Plant position={[1.5, 0, 3]} size={0.6} potColor="#c0a070" />
-      <TallPlant position={[-10, 0, -6]} />
-      <TallPlant position={[10, 0, -6]} />
-      <TallPlant position={[-6, 0, -6]} />
-      <Plant position={[8, 0, 2]} size={0.8} />
+      {/* ---- PLANTS (large and lush) ---- */}
+      <TallPlant position={[-6, 0, 3]} scale={1.8} />
+      <TallPlant position={[6, 0, 3]} scale={1.6} />
+      <TallPlant position={[-10, 0, -6]} scale={2.0} />
+      <TallPlant position={[10, 0, -6]} scale={1.7} />
+      <TallPlant position={[-6, 0, -6]} scale={1.5} />
+      <TallPlant position={[8, 0, -2]} scale={1.4} />
+      <Plant position={[-3, 0, 5]} size={2.5} potColor="#c8a880" />
+      <Plant position={[3, 0, 5]} size={2.0} potColor="#d4a574" />
+      <Plant position={[-9, 0, 2]} size={2.2} potColor="#e0d0c0" />
 
       {/* ---- DECORATIVE ---- */}
       <Bookshelf position={[10, 1, -7.8]} />

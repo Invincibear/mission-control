@@ -21,259 +21,217 @@ export default function AgentAvatar({
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
-  const leftLegRef = useRef<THREE.Group>(null);
-  const rightLegRef = useRef<THREE.Group>(null);
 
-  const isCass = agentId === 'cass';
-  // Cass: Megan Fox inspired — dark hair, warm skin, fitted silhouette
-  const skinColor = isCass ? '#d4a574' : color;
-  const bodyColor = isCass ? '#1a1a2e' : color;
-  const hairColor = isCass ? '#1a0f0a' : new THREE.Color(color).offsetHSL(0, -0.2, -0.3).getStyle();
-  const eyeColor = isCass ? '#4a9ead' : '#ffffff';
+  const isCass = agentId === 'cass' || agentId === 'main';
+
+  // Sims-style: bright, cartoonish colors
+  const skinColor = isCass ? '#f0c8a0' : '#f0c8a0';
+  const shirtColor = isCass ? '#6366f1' : color;
+  const pantsColor = isCass ? '#1e293b' : '#334155';
+  const hairColor = isCass ? '#1a0f0a' : new THREE.Color(color).offsetHSL(0, -0.3, -0.4).getStyle();
+  const shoeColor = '#2a2a30';
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const t = clock.getElapsedTime();
 
     if (isWorking) {
-      // Typing: arms alternate, subtle lean forward
+      // Typing animation
       if (leftArmRef.current) {
-        leftArmRef.current.rotation.x = Math.sin(t * 8) * 0.12 - 0.6;
+        leftArmRef.current.rotation.x = Math.sin(t * 6) * 0.1 - 0.5;
       }
       if (rightArmRef.current) {
-        rightArmRef.current.rotation.x = Math.sin(t * 8 + Math.PI) * 0.12 - 0.6;
+        rightArmRef.current.rotation.x = Math.sin(t * 6 + Math.PI) * 0.1 - 0.5;
       }
       if (headRef.current) {
-        headRef.current.rotation.x = Math.sin(t * 0.8) * 0.03 - 0.05;
-        headRef.current.rotation.y = Math.sin(t * 0.5) * 0.08;
+        headRef.current.rotation.y = Math.sin(t * 0.5) * 0.06;
       }
     } else {
-      // Idle: gentle breathing, slight weight shift
+      // Idle: gentle sway
       if (groupRef.current) {
-        groupRef.current.position.y = position[1] + Math.sin(t * 1.2) * 0.01;
+        groupRef.current.position.y = position[1] + Math.sin(t * 1.2) * 0.008;
       }
       if (leftArmRef.current) {
-        leftArmRef.current.rotation.x = Math.sin(t * 0.8) * 0.03;
-        leftArmRef.current.rotation.z = 0.08;
+        leftArmRef.current.rotation.x = Math.sin(t * 0.8) * 0.02;
+        leftArmRef.current.rotation.z = 0.15;
       }
       if (rightArmRef.current) {
-        rightArmRef.current.rotation.x = Math.sin(t * 0.8 + 0.5) * 0.03;
-        rightArmRef.current.rotation.z = -0.08;
+        rightArmRef.current.rotation.x = Math.sin(t * 0.8 + 0.5) * 0.02;
+        rightArmRef.current.rotation.z = -0.15;
       }
       if (headRef.current) {
-        headRef.current.rotation.y = Math.sin(t * 0.3) * 0.1;
-      }
-      // Slight idle weight shift on legs
-      if (leftLegRef.current) {
-        leftLegRef.current.rotation.x = Math.sin(t * 0.6) * 0.02;
-      }
-      if (rightLegRef.current) {
-        rightLegRef.current.rotation.x = Math.sin(t * 0.6 + Math.PI) * 0.02;
+        headRef.current.rotation.y = Math.sin(t * 0.3) * 0.08;
       }
     }
   });
 
   return (
     <group ref={groupRef} position={position}>
-      {/* ---- LEGS ---- */}
-      {/* Left Leg */}
-      <group ref={leftLegRef} position={[-0.08, 0.32, 0]}>
-        {/* Thigh */}
-        <mesh position={[0, 0, 0]} castShadow>
-          <capsuleGeometry args={[0.055, 0.22, 6, 8]} />
-          <meshStandardMaterial color={isCass ? '#1e293b' : bodyColor} />
+      {/* ---- LEGS (short, stubby — Sims style) ---- */}
+      {/* Left leg */}
+      <mesh position={[-0.06, 0.2, 0]} castShadow>
+        <capsuleGeometry args={[0.05, 0.18, 4, 8]} />
+        <meshStandardMaterial color={pantsColor} roughness={0.8} />
+      </mesh>
+      {/* Right leg */}
+      <mesh position={[0.06, 0.2, 0]} castShadow>
+        <capsuleGeometry args={[0.05, 0.18, 4, 8]} />
+        <meshStandardMaterial color={pantsColor} roughness={0.8} />
+      </mesh>
+      {/* Shoes */}
+      <mesh position={[-0.06, 0.06, 0.02]}>
+        <boxGeometry args={[0.08, 0.05, 0.12]} />
+        <meshStandardMaterial color={shoeColor} roughness={0.7} />
+      </mesh>
+      <mesh position={[0.06, 0.06, 0.02]}>
+        <boxGeometry args={[0.08, 0.05, 0.12]} />
+        <meshStandardMaterial color={shoeColor} roughness={0.7} />
+      </mesh>
+
+      {/* ---- BODY (round, chunky torso — Sims style) ---- */}
+      <mesh position={[0, 0.52, 0]} castShadow>
+        <capsuleGeometry args={[0.14, 0.22, 6, 8]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.7} />
+      </mesh>
+
+      {/* ---- ARMS (short, rounded) ---- */}
+      {/* Left arm */}
+      <group ref={leftArmRef} position={[-0.18, 0.6, 0]}>
+        <mesh position={[0, -0.12, 0]} castShadow>
+          <capsuleGeometry args={[0.04, 0.16, 4, 8]} />
+          <meshStandardMaterial color={shirtColor} roughness={0.7} />
         </mesh>
-        {/* Shin */}
-        <mesh position={[0, -0.25, 0]} castShadow>
-          <capsuleGeometry args={[0.048, 0.2, 6, 8]} />
-          <meshStandardMaterial color={isCass ? '#1e293b' : bodyColor} />
+        {/* Hand */}
+        <mesh position={[0, -0.24, 0]}>
+          <sphereGeometry args={[0.035, 6, 6]} />
+          <meshStandardMaterial color={skinColor} roughness={0.7} />
         </mesh>
-        {/* Shoe */}
-        <mesh position={[0, -0.42, 0.03]} castShadow>
-          <boxGeometry args={[0.1, 0.06, 0.16]} />
-          <meshStandardMaterial color={isCass ? '#0f0f0f' : '#1a1a25'} />
+      </group>
+      {/* Right arm */}
+      <group ref={rightArmRef} position={[0.18, 0.6, 0]}>
+        <mesh position={[0, -0.12, 0]} castShadow>
+          <capsuleGeometry args={[0.04, 0.16, 4, 8]} />
+          <meshStandardMaterial color={shirtColor} roughness={0.7} />
+        </mesh>
+        <mesh position={[0, -0.24, 0]}>
+          <sphereGeometry args={[0.035, 6, 6]} />
+          <meshStandardMaterial color={skinColor} roughness={0.7} />
         </mesh>
       </group>
 
-      {/* Right Leg */}
-      <group ref={rightLegRef} position={[0.08, 0.32, 0]}>
-        <mesh position={[0, 0, 0]} castShadow>
-          <capsuleGeometry args={[0.055, 0.22, 6, 8]} />
-          <meshStandardMaterial color={isCass ? '#1e293b' : bodyColor} />
-        </mesh>
-        <mesh position={[0, -0.25, 0]} castShadow>
-          <capsuleGeometry args={[0.048, 0.2, 6, 8]} />
-          <meshStandardMaterial color={isCass ? '#1e293b' : bodyColor} />
-        </mesh>
-        <mesh position={[0, -0.42, 0.03]} castShadow>
-          <boxGeometry args={[0.1, 0.06, 0.16]} />
-          <meshStandardMaterial color={isCass ? '#0f0f0f' : '#1a1a25'} />
-        </mesh>
-      </group>
-
-      {/* ---- TORSO ---- */}
-      {/* Lower torso / hips */}
-      <mesh position={[0, 0.55, 0]} castShadow>
-        <capsuleGeometry args={[0.14, 0.12, 6, 8]} />
-        <meshStandardMaterial color={bodyColor} />
-      </mesh>
-      {/* Upper torso */}
-      <mesh position={[0, 0.72, 0]} castShadow>
-        <capsuleGeometry args={[0.15, 0.16, 6, 8]} />
-        <meshStandardMaterial color={bodyColor} />
-      </mesh>
-      {/* Shoulders */}
-      <mesh position={[0, 0.82, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <capsuleGeometry args={[0.16, 0.04, 6, 8]} />
-        <meshStandardMaterial color={bodyColor} />
-      </mesh>
-
-      {/* ---- NECK ---- */}
-      <mesh position={[0, 0.9, 0]} castShadow>
-        <cylinderGeometry args={[0.045, 0.055, 0.06, 8]} />
-        <meshStandardMaterial color={skinColor} />
-      </mesh>
-
-      {/* ---- HEAD ---- */}
-      <group ref={headRef} position={[0, 1.02, 0]}>
-        {/* Head shape - slightly oval */}
+      {/* ---- HEAD (BIG, round — the Sims signature) ---- */}
+      <group ref={headRef} position={[0, 0.82, 0]}>
+        {/* Head — oversized sphere */}
         <mesh castShadow>
-          <sphereGeometry args={[0.13, 12, 10]} />
-          <meshStandardMaterial color={skinColor} />
-        </mesh>
-        {/* Jaw / chin area */}
-        <mesh position={[0, -0.06, 0.02]}>
-          <sphereGeometry args={[0.1, 10, 8]} />
-          <meshStandardMaterial color={skinColor} />
+          <sphereGeometry args={[0.15, 12, 10]} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} />
         </mesh>
 
         {/* Hair */}
         {isCass ? (
-          // Megan Fox: long dark hair, sleek
-          <group>
-            {/* Top of hair */}
-            <mesh position={[0, 0.06, -0.01]}>
-              <sphereGeometry args={[0.14, 10, 8]} />
-              <meshStandardMaterial color={hairColor} />
+          // Cass: long dark hair
+          <>
+            <mesh position={[0, 0.06, -0.02]}>
+              <sphereGeometry args={[0.155, 10, 8]} />
+              <meshStandardMaterial color={hairColor} roughness={0.9} />
             </mesh>
-            {/* Back hair - long, flowing */}
-            <mesh position={[0, -0.06, -0.06]}>
-              <capsuleGeometry args={[0.12, 0.25, 6, 8]} />
-              <meshStandardMaterial color={hairColor} />
+            {/* Side hair */}
+            <mesh position={[-0.1, -0.02, 0.02]}>
+              <capsuleGeometry args={[0.05, 0.12, 4, 6]} />
+              <meshStandardMaterial color={hairColor} roughness={0.9} />
             </mesh>
-            {/* Hair sides */}
-            <mesh position={[-0.1, -0.02, 0]}>
-              <capsuleGeometry args={[0.06, 0.15, 6, 8]} />
-              <meshStandardMaterial color={hairColor} />
+            <mesh position={[0.1, -0.02, 0.02]}>
+              <capsuleGeometry args={[0.05, 0.12, 4, 6]} />
+              <meshStandardMaterial color={hairColor} roughness={0.9} />
             </mesh>
-            <mesh position={[0.1, -0.02, 0]}>
-              <capsuleGeometry args={[0.06, 0.15, 6, 8]} />
-              <meshStandardMaterial color={hairColor} />
+            {/* Back hair */}
+            <mesh position={[0, -0.05, -0.06]}>
+              <capsuleGeometry args={[0.1, 0.2, 4, 6]} />
+              <meshStandardMaterial color={hairColor} roughness={0.9} />
             </mesh>
-          </group>
+          </>
         ) : (
-          // Other agents: short styled hair
-          <mesh position={[0, 0.07, -0.01]}>
-            <sphereGeometry args={[0.135, 10, 8]} />
-            <meshStandardMaterial color={hairColor} />
+          // Others: short styled hair
+          <mesh position={[0, 0.08, -0.01]}>
+            <sphereGeometry args={[0.15, 10, 8]} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} />
           </mesh>
         )}
 
-        {/* Eyes */}
-        <mesh position={[-0.045, 0.01, 0.11]}>
-          <sphereGeometry args={[0.025, 8, 8]} />
-          <meshStandardMaterial color="white" />
+        {/* Eyes — big, round, friendly (Sims-style) */}
+        {/* Left eye white */}
+        <mesh position={[-0.05, 0.02, 0.13]}>
+          <sphereGeometry args={[0.032, 8, 8]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
-        <mesh position={[0.045, 0.01, 0.11]}>
-          <sphereGeometry args={[0.025, 8, 8]} />
-          <meshStandardMaterial color="white" />
+        {/* Right eye white */}
+        <mesh position={[0.05, 0.02, 0.13]}>
+          <sphereGeometry args={[0.032, 8, 8]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
-        {/* Irises */}
-        <mesh position={[-0.045, 0.01, 0.13]}>
-          <sphereGeometry args={[0.014, 8, 8]} />
-          <meshStandardMaterial
-            color={eyeColor}
-            emissive={isCass ? eyeColor : undefined}
-            emissiveIntensity={isCass ? 0.3 : 0}
-          />
+        {/* Irises — large, colorful */}
+        <mesh position={[-0.05, 0.02, 0.155]}>
+          <sphereGeometry args={[0.018, 8, 8]} />
+          <meshBasicMaterial color={isCass ? '#4a9ead' : '#5a8a6a'} />
         </mesh>
-        <mesh position={[0.045, 0.01, 0.13]}>
-          <sphereGeometry args={[0.014, 8, 8]} />
-          <meshStandardMaterial
-            color={eyeColor}
-            emissive={isCass ? eyeColor : undefined}
-            emissiveIntensity={isCass ? 0.3 : 0}
-          />
+        <mesh position={[0.05, 0.02, 0.155]}>
+          <sphereGeometry args={[0.018, 8, 8]} />
+          <meshBasicMaterial color={isCass ? '#4a9ead' : '#5a8a6a'} />
         </mesh>
-        {/* Pupils */}
-        <mesh position={[-0.045, 0.01, 0.135]}>
-          <sphereGeometry args={[0.007, 6, 6]} />
-          <meshStandardMaterial color="#0a0a0a" />
+        {/* Pupils — small dots */}
+        <mesh position={[-0.05, 0.02, 0.165]}>
+          <sphereGeometry args={[0.008, 6, 6]} />
+          <meshBasicMaterial color="#111111" />
         </mesh>
-        <mesh position={[0.045, 0.01, 0.135]}>
-          <sphereGeometry args={[0.007, 6, 6]} />
-          <meshStandardMaterial color="#0a0a0a" />
+        <mesh position={[0.05, 0.02, 0.165]}>
+          <sphereGeometry args={[0.008, 6, 6]} />
+          <meshBasicMaterial color="#111111" />
         </mesh>
-
-        {/* Lips / mouth */}
-        <mesh position={[0, -0.04, 0.11]}>
-          <boxGeometry args={[0.06, 0.012, 0.01]} />
-          <meshStandardMaterial color={isCass ? '#c47070' : new THREE.Color(skinColor).offsetHSL(0, 0.1, -0.15).getStyle()} />
+        {/* Eye shine (white dot reflection) */}
+        <mesh position={[-0.042, 0.028, 0.168]}>
+          <sphereGeometry args={[0.004, 4, 4]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[0.058, 0.028, 0.168]}>
+          <sphereGeometry args={[0.004, 4, 4]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
 
-        {/* Nose */}
-        <mesh position={[0, -0.01, 0.13]}>
-          <sphereGeometry args={[0.015, 6, 6]} />
-          <meshStandardMaterial color={new THREE.Color(skinColor).offsetHSL(0, 0, -0.03).getStyle()} />
+        {/* Mouth — simple friendly smile */}
+        <mesh position={[0, -0.04, 0.14]}>
+          <torusGeometry args={[0.025, 0.004, 6, 12, Math.PI]} />
+          <meshBasicMaterial color="#d4868a" />
         </mesh>
-      </group>
 
-      {/* ---- ARMS ---- */}
-      {/* Left Arm */}
-      <group ref={leftArmRef} position={[-0.2, 0.78, 0]}>
-        {/* Upper arm */}
-        <mesh position={[0, -0.08, 0]} castShadow>
-          <capsuleGeometry args={[0.045, 0.14, 6, 8]} />
-          <meshStandardMaterial color={bodyColor} />
+        {/* Blush spots (Sims signature) */}
+        <mesh position={[-0.08, -0.01, 0.12]}>
+          <sphereGeometry args={[0.02, 6, 6]} />
+          <meshStandardMaterial color="#f0a0a0" transparent opacity={0.4} roughness={1} />
         </mesh>
-        {/* Forearm */}
-        <mesh position={[0, -0.24, 0.02]} castShadow>
-          <capsuleGeometry args={[0.038, 0.14, 6, 8]} />
-          <meshStandardMaterial color={isCass ? skinColor : bodyColor} />
+        <mesh position={[0.08, -0.01, 0.12]}>
+          <sphereGeometry args={[0.02, 6, 6]} />
+          <meshStandardMaterial color="#f0a0a0" transparent opacity={0.4} roughness={1} />
         </mesh>
-        {/* Hand */}
-        <mesh position={[0, -0.35, 0.03]} castShadow>
-          <sphereGeometry args={[0.03, 8, 6]} />
-          <meshStandardMaterial color={skinColor} />
-        </mesh>
-      </group>
 
-      {/* Right Arm */}
-      <group ref={rightArmRef} position={[0.2, 0.78, 0]}>
-        <mesh position={[0, -0.08, 0]} castShadow>
-          <capsuleGeometry args={[0.045, 0.14, 6, 8]} />
-          <meshStandardMaterial color={bodyColor} />
-        </mesh>
-        <mesh position={[0, -0.24, 0.02]} castShadow>
-          <capsuleGeometry args={[0.038, 0.14, 6, 8]} />
-          <meshStandardMaterial color={isCass ? skinColor : bodyColor} />
-        </mesh>
-        <mesh position={[0, -0.35, 0.03]} castShadow>
-          <sphereGeometry args={[0.03, 8, 6]} />
-          <meshStandardMaterial color={skinColor} />
+        {/* Nose — tiny bump */}
+        <mesh position={[0, -0.01, 0.15]}>
+          <sphereGeometry args={[0.012, 6, 6]} />
+          <meshStandardMaterial color={new THREE.Color(skinColor).offsetHSL(0, 0, -0.03).getStyle()} roughness={0.7} />
         </mesh>
       </group>
 
       {/* ---- STATUS INDICATOR ---- */}
       {isWorking && (
-        <mesh position={[0, 1.25, 0]}>
-          <sphereGeometry args={[0.025, 8, 8]} />
-          <meshStandardMaterial
-            color="#22c55e"
-            emissive="#22c55e"
-            emissiveIntensity={2}
-          />
-        </mesh>
+        <group position={[0, 1.1, 0]}>
+          <mesh>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshStandardMaterial
+              color="#22c55e"
+              emissive="#22c55e"
+              emissiveIntensity={2}
+            />
+          </mesh>
+        </group>
       )}
     </group>
   );
