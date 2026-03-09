@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import AgentAvatar from './agent-avatar';
 
@@ -140,18 +140,6 @@ export default function Desk({
       <Keyboard />
       <Mouse />
 
-      {/* Name plate on desk edge */}
-      <Text
-        position={[0, 0.75, 0.34]}
-        fontSize={0.05}
-        color="#888898"
-        anchorX="center"
-        anchorY="middle"
-        font={undefined}
-      >
-        {agentName}
-      </Text>
-
       {/* Agent standing behind desk */}
       <group position={[0, 0, 0.7]}>
         <AgentAvatar
@@ -159,6 +147,23 @@ export default function Desk({
           agentId={agentId}
           isWorking={isWorking}
         />
+        {/* Floating name label above agent head — always faces camera */}
+        <Billboard position={[0, 1.45, 0]} follow lockX={false} lockY={false} lockZ={false}>
+          {/* Background pill */}
+          <mesh position={[0, 0, -0.01]}>
+            <planeGeometry args={[agentName.length * 0.075 + 0.16, 0.16]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
+          </mesh>
+          <Text
+            fontSize={0.09}
+            color="#334155"
+            anchorX="center"
+            anchorY="middle"
+            font={undefined}
+          >
+            {agentName}
+          </Text>
+        </Billboard>
       </group>
     </group>
   );

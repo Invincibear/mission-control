@@ -165,7 +165,7 @@ function WallArt({
   );
 }
 
-/* ---- PLANTS ---- */
+/* ---- DESK PLANT (small succulent/pot) ---- */
 function Plant({
   position,
   size = 1,
@@ -175,83 +175,95 @@ function Plant({
   size?: number;
   potColor?: string;
 }) {
-  const leaves = useMemo(() => {
-    const items: { angle: number; tilt: number; height: number; scale: number }[] = [];
-    for (let i = 0; i < 8; i++) {
-      items.push({
-        angle: (i / 8) * Math.PI * 2 + Math.random() * 0.3,
-        tilt: 0.3 + Math.random() * 0.4,
-        height: 0.1 + Math.random() * 0.15,
-        scale: 0.7 + Math.random() * 0.6,
-      });
-    }
-    return items;
-  }, []);
-
   return (
     <group position={position} scale={size}>
       {/* Pot */}
-      <mesh position={[0, 0.12, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.1, 0.24, 8]} />
-        <meshStandardMaterial color={potColor} roughness={0.9} />
+      <mesh position={[0, 0.1, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.08, 0.2, 12]} />
+        <meshStandardMaterial color={potColor} roughness={0.85} />
+      </mesh>
+      {/* Pot rim */}
+      <mesh position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.11, 0.1, 0.02, 12]} />
+        <meshStandardMaterial color={potColor} roughness={0.8} />
       </mesh>
       {/* Soil */}
-      <mesh position={[0, 0.25, 0]}>
-        <cylinderGeometry args={[0.11, 0.11, 0.02, 8]} />
-        <meshStandardMaterial color="#5a4a38" roughness={1} />
+      <mesh position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.02, 12]} />
+        <meshStandardMaterial color="#6a5a48" roughness={1} />
       </mesh>
-      {/* Leaves */}
-      {leaves.map((leaf, i) => (
-        <group
-          key={i}
-          position={[0, 0.26 + leaf.height * size, 0]}
-          rotation={[leaf.tilt, leaf.angle, 0]}
-        >
-          <mesh position={[0, 0.08 * leaf.scale, 0]} castShadow>
-            <sphereGeometry args={[0.06 * leaf.scale, 6, 6]} />
+      {/* Center stem cluster */}
+      <mesh position={[0, 0.3, 0]} castShadow>
+        <sphereGeometry args={[0.07, 8, 8]} />
+        <meshStandardMaterial color="#4a9a50" roughness={0.7} />
+      </mesh>
+      {/* Surrounding leaves — flattened ellipsoids radiating outward */}
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const angle = (i / 6) * Math.PI * 2;
+        const r = 0.06;
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * r, 0.28, Math.sin(angle) * r]}
+            rotation={[0.3, angle, 0]}
+            castShadow
+          >
+            <sphereGeometry args={[0.05, 6, 6]} />
             <meshStandardMaterial
-              color={i % 3 === 0 ? '#3a8a4a' : i % 3 === 1 ? '#4aaa5a' : '#2e7a40'}
-              roughness={0.8}
+              color={i % 2 === 0 ? '#3d8a45' : '#5aaa58'}
+              roughness={0.75}
             />
           </mesh>
-        </group>
-      ))}
+        );
+      })}
     </group>
   );
 }
 
-/* ---- TALL PLANT ---- */
+/* ---- TALL PLANT (fiddle leaf / ficus style) ---- */
 function TallPlant({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
       {/* Pot */}
-      <mesh position={[0, 0.2, 0]} castShadow>
-        <cylinderGeometry args={[0.18, 0.14, 0.4, 8]} />
+      <mesh position={[0, 0.18, 0]} castShadow>
+        <cylinderGeometry args={[0.16, 0.12, 0.36, 12]} />
         <meshStandardMaterial color="#e0d0c0" roughness={0.85} />
       </mesh>
-      {/* Trunk */}
-      <mesh position={[0, 0.7, 0]} castShadow>
-        <cylinderGeometry args={[0.03, 0.04, 0.8, 6]} />
-        <meshStandardMaterial color="#8a6a40" roughness={0.9} />
+      {/* Pot rim */}
+      <mesh position={[0, 0.37, 0]}>
+        <cylinderGeometry args={[0.17, 0.16, 0.03, 12]} />
+        <meshStandardMaterial color="#e8d8c8" roughness={0.8} />
       </mesh>
-      {/* Canopy */}
-      {[0, 1, 2, 3, 4].map((i) => {
-        const angle = (i / 5) * Math.PI * 2;
-        return (
-          <mesh
-            key={i}
-            position={[
-              Math.cos(angle) * 0.15,
-              1.0 + Math.random() * 0.2,
-              Math.sin(angle) * 0.15,
-            ]}
-            castShadow
-          >
-            <sphereGeometry args={[0.15 + Math.random() * 0.05, 8, 6]} />
-            <meshStandardMaterial color="#3a9a4a" roughness={0.8} />
-          </mesh>
-        );
-      })}
+      {/* Soil */}
+      <mesh position={[0, 0.37, 0]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.02, 12]} />
+        <meshStandardMaterial color="#6a5a48" roughness={1} />
+      </mesh>
+      {/* Main trunk */}
+      <mesh position={[0, 0.7, 0]} castShadow>
+        <cylinderGeometry args={[0.025, 0.035, 0.7, 6]} />
+        <meshStandardMaterial color="#7a6040" roughness={0.9} />
+      </mesh>
+      {/* Branch 1 */}
+      <mesh position={[-0.05, 0.9, 0]} rotation={[0, 0, 0.3]} castShadow>
+        <cylinderGeometry args={[0.015, 0.02, 0.3, 5]} />
+        <meshStandardMaterial color="#7a6040" roughness={0.9} />
+      </mesh>
+      {/* Leaf clusters — large rounded leaves */}
+      {[
+        { pos: [0, 1.15, 0] as [number, number, number], s: 0.18, c: '#3a8a42' },
+        { pos: [-0.12, 1.05, 0.05] as [number, number, number], s: 0.14, c: '#4a9a4e' },
+        { pos: [0.1, 1.08, -0.05] as [number, number, number], s: 0.13, c: '#358a3a' },
+        { pos: [0, 1.25, 0.03] as [number, number, number], s: 0.12, c: '#4aaa52' },
+        { pos: [-0.15, 0.95, -0.03] as [number, number, number], s: 0.11, c: '#3d9244' },
+        { pos: [0.08, 1.2, 0.06] as [number, number, number], s: 0.1, c: '#48a84e' },
+        { pos: [-0.06, 1.18, -0.08] as [number, number, number], s: 0.09, c: '#3a8840' },
+      ].map(({ pos, s, c }, i) => (
+        <mesh key={i} position={pos} castShadow>
+          <sphereGeometry args={[s, 8, 8]} />
+          <meshStandardMaterial color={c} roughness={0.7} />
+        </mesh>
+      ))}
     </group>
   );
 }
