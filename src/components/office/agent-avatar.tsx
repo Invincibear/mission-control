@@ -256,27 +256,27 @@ export default function AgentAvatar({
           // Cass: Megan Fox — long, voluminous, dark
           <>
             {/* Top volume */}
-            <mesh position={[0, 0.07, -0.02]}>
+            <mesh position={[0, 0.07, -0.03]}>
               <sphereGeometry args={[0.16, 10, 8]} />
               <meshStandardMaterial color={hairColor} roughness={0.95} />
             </mesh>
-            {/* Side hair — left, long and flowing */}
-            <mesh position={[-0.12, -0.04, 0.02]}>
-              <capsuleGeometry args={[0.06, 0.2, 4, 6]} />
+            {/* Side hair — left, swept behind face */}
+            <mesh position={[-0.13, -0.06, -0.04]}>
+              <capsuleGeometry args={[0.05, 0.22, 4, 6]} />
               <meshStandardMaterial color={hairColor} roughness={0.95} />
             </mesh>
-            {/* Side hair — right */}
-            <mesh position={[0.12, -0.04, 0.02]}>
-              <capsuleGeometry args={[0.06, 0.2, 4, 6]} />
+            {/* Side hair — right, swept behind face */}
+            <mesh position={[0.13, -0.06, -0.04]}>
+              <capsuleGeometry args={[0.05, 0.22, 4, 6]} />
               <meshStandardMaterial color={hairColor} roughness={0.95} />
             </mesh>
             {/* Back hair — long, past shoulders */}
-            <mesh position={[0, -0.12, -0.06]}>
-              <capsuleGeometry args={[0.12, 0.35, 4, 6]} />
+            <mesh position={[0, -0.15, -0.07]}>
+              <capsuleGeometry args={[0.11, 0.35, 4, 6]} />
               <meshStandardMaterial color={hairColor} roughness={0.95} />
             </mesh>
             {/* Extra back volume */}
-            <mesh position={[0, -0.02, -0.08]}>
+            <mesh position={[0, -0.02, -0.09]}>
               <capsuleGeometry args={[0.13, 0.12, 4, 6]} />
               <meshStandardMaterial color={hairColor} roughness={0.95} />
             </mesh>
@@ -288,77 +288,53 @@ export default function AgentAvatar({
           </mesh>
         )}
 
-        {/* Eyes — big, expressive */}
-        <mesh position={[-0.05, 0.02, 0.13]}>
-          <sphereGeometry args={[0.032, 8, 8]} />
+        {/* Eyes — closer together, smaller */}
+        <mesh position={[-0.035, 0.02, 0.13]}>
+          <sphereGeometry args={[0.025, 8, 8]} />
           <meshBasicMaterial color="#ffffff" />
         </mesh>
-        <mesh position={[0.05, 0.02, 0.13]}>
-          <sphereGeometry args={[0.032, 8, 8]} />
+        <mesh position={[0.035, 0.02, 0.13]}>
+          <sphereGeometry args={[0.025, 8, 8]} />
           <meshBasicMaterial color="#ffffff" />
         </mesh>
         {/* Irises */}
-        <mesh position={[-0.05, 0.02, 0.155]}>
-          <sphereGeometry args={[0.018, 8, 8]} />
+        <mesh position={[-0.035, 0.02, 0.15]}>
+          <sphereGeometry args={[0.015, 8, 8]} />
           <meshBasicMaterial color={isCass ? '#4a9ead' : '#5a8a6a'} />
         </mesh>
-        <mesh position={[0.05, 0.02, 0.155]}>
-          <sphereGeometry args={[0.018, 8, 8]} />
+        <mesh position={[0.035, 0.02, 0.15]}>
+          <sphereGeometry args={[0.015, 8, 8]} />
           <meshBasicMaterial color={isCass ? '#4a9ead' : '#5a8a6a'} />
         </mesh>
         {/* Pupils */}
-        <mesh position={[-0.05, 0.02, 0.165]}>
-          <sphereGeometry args={[0.008, 6, 6]} />
+        <mesh position={[-0.035, 0.02, 0.158]}>
+          <sphereGeometry args={[0.006, 6, 6]} />
           <meshBasicMaterial color="#111111" />
         </mesh>
-        <mesh position={[0.05, 0.02, 0.165]}>
-          <sphereGeometry args={[0.008, 6, 6]} />
+        <mesh position={[0.035, 0.02, 0.158]}>
+          <sphereGeometry args={[0.006, 6, 6]} />
           <meshBasicMaterial color="#111111" />
         </mesh>
         {/* Eye shine */}
-        <mesh position={[-0.042, 0.028, 0.168]}>
-          <sphereGeometry args={[0.004, 4, 4]} />
+        <mesh position={[-0.03, 0.026, 0.16]}>
+          <sphereGeometry args={[0.003, 4, 4]} />
           <meshBasicMaterial color="#ffffff" />
         </mesh>
-        <mesh position={[0.058, 0.028, 0.168]}>
-          <sphereGeometry args={[0.004, 4, 4]} />
+        <mesh position={[0.04, 0.026, 0.16]}>
+          <sphereGeometry args={[0.003, 4, 4]} />
           <meshBasicMaterial color="#ffffff" />
         </mesh>
 
-        {/* Eyeliner / lashes (Cass — thicker, darker) */}
-        {isCass && (
-          <>
-            <mesh position={[-0.05, 0.042, 0.13]}>
-              <boxGeometry args={[0.05, 0.005, 0.02]} />
-              <meshBasicMaterial color="#1a1a1a" />
-            </mesh>
-            <mesh position={[0.05, 0.042, 0.13]}>
-              <boxGeometry args={[0.05, 0.005, 0.02]} />
-              <meshBasicMaterial color="#1a1a1a" />
-            </mesh>
-          </>
-        )}
-
-        {/* Lips — fuller for Cass */}
-        <mesh position={[0, -0.04, 0.14]}>
-          <torusGeometry args={[isCass ? 0.028 : 0.025, isCass ? 0.006 : 0.004, 6, 12, Math.PI]} />
+        {/* Smile — rotated correctly so it curves UP */}
+        <mesh position={[0, -0.04, 0.14]} rotation={[Math.PI, 0, 0]}>
+          <torusGeometry args={[isCass ? 0.02 : 0.018, isCass ? 0.004 : 0.003, 6, 12, Math.PI]} />
           <meshBasicMaterial color={isCass ? '#c45060' : '#d4868a'} />
         </mesh>
 
-        {/* Blush */}
-        <mesh position={[-0.08, -0.01, 0.12]}>
-          <sphereGeometry args={[0.02, 6, 6]} />
-          <meshStandardMaterial color="#f0a0a0" transparent opacity={0.35} roughness={1} />
-        </mesh>
-        <mesh position={[0.08, -0.01, 0.12]}>
-          <sphereGeometry args={[0.02, 6, 6]} />
-          <meshStandardMaterial color="#f0a0a0" transparent opacity={0.35} roughness={1} />
-        </mesh>
-
-        {/* Nose */}
-        <mesh position={[0, -0.01, 0.15]}>
-          <sphereGeometry args={[0.012, 6, 6]} />
-          <meshStandardMaterial color={new THREE.Color(skinColor).offsetHSL(0, 0, -0.03).getStyle()} roughness={0.7} />
+        {/* Nose — tiny, subtle */}
+        <mesh position={[0, -0.01, 0.148]}>
+          <sphereGeometry args={[0.008, 6, 6]} />
+          <meshStandardMaterial color={new THREE.Color(skinColor).offsetHSL(0, 0, -0.02).getStyle()} roughness={0.7} />
         </mesh>
       </group>
 
