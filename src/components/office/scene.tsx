@@ -594,6 +594,7 @@ function SceneContent({ agents }: OfficeSceneProps) {
       />
 
       {/* ---- CONTROLS ---- */}
+      {/* Middle mouse (scroll button) + drag = pan (same as ctrl+left-click+drag) */}
       <OrbitControls
         makeDefault
         minDistance={3}
@@ -603,6 +604,11 @@ function SceneContent({ agents }: OfficeSceneProps) {
         target={[0, 1.2, -1]}
         enableDamping
         dampingFactor={0.05}
+        mouseButtons={{
+          LEFT: THREE.MOUSE.ROTATE,
+          MIDDLE: THREE.MOUSE.PAN,
+          RIGHT: THREE.MOUSE.PAN,
+        }}
       />
 
       <Environment preset="apartment" />
