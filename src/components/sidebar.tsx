@@ -39,7 +39,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`h-screen bg-bg-secondary border-r border-border flex flex-col shrink-0 transition-all duration-200 ${
+      className={`h-dvh bg-bg-secondary border-r border-border flex flex-col shrink-0 transition-all duration-200 overflow-hidden ${
         collapsed ? 'w-16' : 'w-56'
       }`}
     >
@@ -59,7 +59,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-2 space-y-0.5">
+      <nav className="flex-1 min-h-0 overflow-y-auto p-2 space-y-0.5">
         {navItems.map((item) => {
           const isActive =
             item.href === '/'
@@ -87,7 +87,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-2 border-t border-border space-y-1">
+      <div className="p-2 border-t border-border space-y-1 shrink-0">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={`flex items-center gap-2 w-full rounded-md text-xs text-text-muted hover:text-text-secondary hover:bg-bg-hover transition-colors ${
