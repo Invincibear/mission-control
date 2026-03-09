@@ -1,57 +1,38 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface AgentStatus {
   id: string;
   name: string;
   isWorking: boolean;
-  currentTask?: string;
 }
 
-export function useAgentStatus() {
+export function useAgentStatus(pollIntervalMs = 3000) {
   const [statuses, setStatuses] = useState<AgentStatus[]>([]);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const connect = useCallback(() => {
-    // Clean up any existing connection
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/agents/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      setStatuses(
+        (data.agents || []).map((a: { id: string; name: string; status: string }) => ({
+          id: a.id,
+          name: a.name,
+          isWorking: a.status === 'working',
+        }))
+      );
+    } catch {
+      // Silently fail
     }
-
-    const es = new EventSource('/api/agents/status?stream=true');
-    eventSourceRef.current = es;
-
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setStatuses(data);
-      } catch {
-        // ignore parse errors
-      }
-    };
-
-    es.onerror = () => {
-      es.close();
-      eventSourceRef.current = null;
-      // Reconnect after 5 seconds
-      reconnectTimerRef.current = setTimeout(connect, 5000);
-    };
   }, []);
 
   useEffect(() => {
-    connect();
-
-    return () => {
-      if (reconnectTimerRef.current) {
-        clearTimeout(reconnectTimerRef.current);
-      }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-    };
-  }, [connect]);
+    fetchStatus();
+    const interval = setInterval(fetchStatus, pollIntervalMs);
+    return () => clearInterval(interval);
+  }, [fetchStatus, pollIntervalMs]);
 
   return statuses;
 }

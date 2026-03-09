@@ -1,90 +1,94 @@
-import { getAgents } from '@/lib/agents';
-import { execSync } from 'child_process';
+import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
-export const dynamic = 'force-dynamic';
+const OPENCLAW_DIR = path.join(process.env.HOME || '', '.openclaw');
+const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
+// Consider "working" if activity within last 15 seconds
+const ACTIVE_THRESHOLD_MS = 15_000;
 
 interface AgentStatus {
   id: string;
   name: string;
-  isWorking: boolean;
-  currentTask?: string;
+  status: 'working' | 'idle' | 'offline';
+  lastActivity: number | null;
+  currentSession: string | null;
 }
 
-function getAgentStatuses(): AgentStatus[] {
-  const agents = getAgents();
-
-  // Check for active coding agent processes
-  let activeSessions: string[] = [];
+export async function GET() {
   try {
-    const output = execSync(
-      'ps aux | grep -E "claude|codex|opencode" | grep -v grep',
-      { timeout: 3000 }
-    ).toString();
-    activeSessions = output.split('\n');
-  } catch {
-    // grep returns exit 1 when no matches — that's fine
-  }
+    // Read agent config
+    const configPath = path.join(OPENCLAW_DIR, 'openclaw.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const agentsList = config.agents?.list || [];
 
-  return agents.map((agent) => {
-    // Check if there are active claude/codex processes in the agent's workspace
-    const isWorking = activeSessions.some(
-      (line) =>
-        (line.includes('claude') || line.includes('codex') || line.includes('opencode')) &&
-        line.includes(agent.workspace)
-    );
+    const now = Date.now();
+    const statuses: AgentStatus[] = [];
 
-    return {
-      id: agent.id,
-      name: agent.name,
-      isWorking,
-    };
-  });
-}
+    for (const agent of agentsList) {
+      const agentId = agent.id;
+      const agentName = agent.name || agentId;
+      const sessionsFile = path.join(AGENTS_DIR, agentId, 'sessions', 'sessions.json');
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const stream = url.searchParams.get('stream');
+      let status: 'working' | 'idle' | 'offline' = 'offline';
+      let lastActivity: number | null = null;
+      let currentSession: string | null = null;
 
-  // Non-streaming: return current status
-  if (stream !== 'true') {
-    return Response.json(getAgentStatuses());
-  }
+      try {
+        const sessions = JSON.parse(fs.readFileSync(sessionsFile, 'utf-8'));
+        let sessionLogFile: string | null = null;
 
-  // SSE streaming
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream({
-    start(controller) {
-      // Send initial status
-      const initial = getAgentStatuses();
-      controller.enqueue(
-        encoder.encode(`data: ${JSON.stringify(initial)}\n\n`)
-      );
-
-      // Poll every 3 seconds
-      const interval = setInterval(() => {
-        try {
-          const statuses = getAgentStatuses();
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(statuses)}\n\n`)
-          );
-        } catch {
-          // ignore errors in poll
+        // Find the most recent session activity
+        for (const [key, session] of Object.entries(sessions)) {
+          const sess = session as Record<string, unknown>;
+          const updatedAt = sess.updatedAt as number;
+          if (updatedAt && (!lastActivity || updatedAt > lastActivity)) {
+            lastActivity = updatedAt;
+            currentSession = key;
+            sessionLogFile = sess.sessionFile as string || null;
+          }
         }
-      }, 3000);
 
-      // Clean up on close
-      request.signal.addEventListener('abort', () => {
-        clearInterval(interval);
-        controller.close();
+        // Check session log file mtime — most accurate for "currently working"
+        if (sessionLogFile) {
+          try {
+            const stat = fs.statSync(sessionLogFile);
+            const logMtime = stat.mtimeMs;
+            if (logMtime > (lastActivity || 0)) {
+              lastActivity = logMtime;
+            }
+          } catch {
+            // Session log file might not exist yet
+          }
+        }
+
+        if (lastActivity) {
+          const timeSince = now - lastActivity;
+          if (timeSince < ACTIVE_THRESHOLD_MS) {
+            status = 'working';
+          } else {
+            status = 'idle';
+          }
+        }
+      } catch {
+        // No sessions file = offline
+        status = 'offline';
+      }
+
+      statuses.push({
+        id: agentId,
+        name: agentName,
+        status,
+        lastActivity,
+        currentSession,
       });
-    },
-  });
+    }
 
-  return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-    },
-  });
+    return NextResponse.json({ agents: statuses, timestamp: now });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to read agent status' },
+      { status: 500 }
+    );
+  }
 }
