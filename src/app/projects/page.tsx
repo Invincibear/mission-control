@@ -223,6 +223,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -260,9 +261,8 @@ export default function ProjectsPage() {
       setProjects((prev) => [...prev, project]);
       setAddingTo(null);
     } catch {
-      setError(true);
-      // Auto-clear error after 3 seconds
-      setTimeout(() => setError(false), 3000);
+      setMutationError('Failed to create project');
+      setTimeout(() => setMutationError(null), 3000);
     }
   };
 
@@ -275,6 +275,8 @@ export default function ProjectsPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch {
       setProjects(prev);
+      setMutationError('Failed to delete project');
+      setTimeout(() => setMutationError(null), 3000);
     }
   };
 
@@ -286,11 +288,14 @@ export default function ProjectsPage() {
         body: JSON.stringify({ id, ...updates }),
       });
       if (!res.ok) {
-        // Refetch to resync UI with server state
         fetchProjects();
+        setMutationError('Failed to update project');
+        setTimeout(() => setMutationError(null), 3000);
       }
     } catch {
       fetchProjects();
+      setMutationError('Failed to update project');
+      setTimeout(() => setMutationError(null), 3000);
     }
   };
 
@@ -336,6 +341,13 @@ export default function ProjectsPage() {
         <h1 className="text-2xl font-semibold">Projects</h1>
         <p className="text-text-secondary text-sm mt-1">Manage your projects with drag-and-drop</p>
       </div>
+
+      {mutationError && (
+        <div className="mb-4 px-4 py-2 bg-error/10 border border-error/30 rounded-lg text-error text-sm flex items-center gap-2" role="alert">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          {mutationError}
+        </div>
+      )}
 
       {error ? (
         <div className="text-error text-sm">Failed to load projects. Try refreshing the page.</div>
