@@ -556,8 +556,8 @@ function SceneContent({ agents }: OfficeSceneProps) {
       {/* ---- PLANTS ---- */}
       <Plant position={[-6, 0, 2]} size={1.2} />
       <Plant position={[6, 0, 2]} size={1} potColor="#e0d0c0" />
-      <Plant position={[-1.5, 0.73, -0.15]} size={0.5} potColor="#c8a880" />
-      <Plant position={[1.5, 0.73, -0.15]} size={0.4} potColor="#c0a070" />
+      <Plant position={[-1.5, 0, 3]} size={0.7} potColor="#c8a880" />
+      <Plant position={[1.5, 0, 3]} size={0.6} potColor="#c0a070" />
       <TallPlant position={[-10, 0, -6]} />
       <TallPlant position={[10, 0, -6]} />
       <TallPlant position={[-6, 0, -6]} />
