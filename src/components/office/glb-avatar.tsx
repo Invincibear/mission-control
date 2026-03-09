@@ -27,24 +27,22 @@ function LoadedAvatar({
 }: GLBAvatarProps & { modelPath: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const isCass = agentId === 'cass' || agentId === 'main';
-  const gltf = useGLTF(modelPath);
-  const { actions, names } = useAnimations(gltf.animations, groupRef);
+  const { scene, animations } = useGLTF(modelPath);
+  const { actions, names } = useAnimations(animations, groupRef);
 
-  // Clone for independent instances + enable shadows
-  const clonedScene = useMemo(() => {
-    const clone = THREE.SkeletonUtils.clone(gltf.scene);
-    clone.traverse((child) => {
+  // Enable shadows on load
+  useEffect(() => {
+    scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
-    return clone;
-  }, [gltf.scene]);
+  }, [scene]);
 
-  // Auto-scale: normalize to ~1.0 units tall
+  // Auto-scale to ~1.0 units tall
   const { scaleFactor, offsetY } = useMemo(() => {
-    const bbox = new THREE.Box3().setFromObject(clonedScene);
+    const bbox = new THREE.Box3().setFromObject(scene);
     const size = new THREE.Vector3();
     bbox.getSize(size);
     const sf = 1.0 / (size.y || 1);
@@ -52,7 +50,7 @@ function LoadedAvatar({
       scaleFactor: sf,
       offsetY: -bbox.min.y * sf,
     };
-  }, [clonedScene]);
+  }, [scene]);
 
   // Play animations based on state
   useEffect(() => {
