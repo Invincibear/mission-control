@@ -56,6 +56,7 @@ function projectToEvents(projects: Project[]): EventInput[] {
 export default function CalendarPage() {
   const [events, setEvents] = useState<EventInput[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const safeFetch = (url: string) =>
@@ -71,7 +72,7 @@ export default function CalendarPage() {
         ];
         setEvents(allEvents);
       })
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -83,7 +84,11 @@ export default function CalendarPage() {
       </div>
 
       <div className="bg-bg-secondary border border-border rounded-lg p-4">
-        {loading ? (
+        {error ? (
+          <div className="h-[200px] flex items-center justify-center text-error text-sm">
+            Failed to load calendar data. Try refreshing the page.
+          </div>
+        ) : loading ? (
           <Skeleton className="h-[600px] w-full rounded-lg" />
         ) : (
           <FullCalendar

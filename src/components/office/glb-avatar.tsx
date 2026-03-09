@@ -26,7 +26,6 @@ function LoadedAvatar({
   position = [0, 0, 0],
 }: GLBAvatarProps & { modelPath: string }) {
   const groupRef = useRef<THREE.Group>(null);
-  const isCass = agentId === 'cass' || agentId === 'main';
   const { scene, animations } = useGLTF(modelPath);
 
   // Clone the scene so each agent gets its own instance.

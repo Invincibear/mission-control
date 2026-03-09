@@ -59,7 +59,7 @@ function StatCard({
 
 function StatsSkeleton() {
   return (
-    <div className="grid grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {[...Array(4)].map((_, i) => (
         <SkeletonCard key={i} />
       ))}
@@ -69,7 +69,7 @@ function StatsSkeleton() {
 
 function GridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="bg-bg-secondary border border-border rounded-lg p-5">
           <Skeleton className="h-4 w-24 mb-4" />
@@ -124,13 +124,13 @@ export default function OverviewPage() {
         </>
       ) : data ? (
         <>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {stats.map((stat) => (
               <StatCard key={stat.label} {...stat} />
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-bg-secondary border border-border rounded-lg p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-4 h-4 text-text-secondary" />

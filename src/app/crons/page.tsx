@@ -13,7 +13,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
-import { SkeletonRow } from '@/components/skeleton';
+import { Skeleton } from '@/components/skeleton';
 
 interface CronJob {
   id: string;
@@ -172,9 +172,16 @@ export default function CronsPage() {
           <tbody>
             {loading ? (
               <>
-                <tr><td colSpan={6}><SkeletonRow /></td></tr>
-                <tr><td colSpan={6}><SkeletonRow /></td></tr>
-                <tr><td colSpan={6}><SkeletonRow /></td></tr>
+                {[...Array(3)].map((_, i) => (
+                  <tr key={i} className="border-b border-border">
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-4" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-32" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-5 w-14 rounded-full" /></td>
+                  </tr>
+                ))}
               </>
             ) : activeCrons.length === 0 ? (
               <tr>
