@@ -1,6 +1,7 @@
 export function Skeleton({ className = '', as: Tag = 'div' }: { className?: string; as?: 'div' | 'span' }) {
   return (
     <Tag
+      aria-hidden="true"
       className={`animate-pulse bg-zinc-800/60 rounded ${className}`}
     />
   );

@@ -259,7 +259,7 @@ export default function ProjectsPage() {
     const prev = projects;
     setProjects((p) => p.filter((proj) => proj.id !== id));
     try {
-      const res = await fetch(`/api/projects?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch {
       setProjects(prev);

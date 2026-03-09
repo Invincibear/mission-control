@@ -209,7 +209,7 @@ export default function MemoryPage() {
       {error ? (
         <div className="text-error text-sm">Failed to load memory files.</div>
       ) : searchResults !== null ? (
-        <div className="flex-1 overflow-y-auto bg-bg-secondary border border-border rounded-lg p-4">
+        <div className="flex-1 overflow-y-auto bg-bg-secondary border border-border rounded-lg p-4" role="region" aria-live="polite" aria-label="Search results">
           <h3 className="text-sm font-medium mb-3">
             {searching ? (
               <span className="flex items-center gap-2">

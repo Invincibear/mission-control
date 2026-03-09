@@ -9,6 +9,7 @@ import {
   Activity,
   ArrowRight,
 } from 'lucide-react';
+import { useAgentStatus } from '@/lib/use-agent-status';
 import { Skeleton, SkeletonCard } from '@/components/skeleton';
 
 interface OverviewData {
@@ -87,6 +88,7 @@ export default function OverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const liveStatuses = useAgentStatus(5000);
 
   useEffect(() => {
     fetch('/api/overview')
@@ -183,16 +185,20 @@ export default function OverviewPage() {
                 <h2 className="text-sm font-medium">Agents</h2>
               </div>
               <div className="space-y-2">
-                {data.agents.map((agent) => (
-                  <div
-                    key={agent.id}
-                    className="flex items-center gap-3 p-2 bg-bg-tertiary rounded"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-success" />
-                    <span className="text-sm font-mono">{agent.name}</span>
-                    <span className="text-xs text-text-muted ml-auto">{agent.id}</span>
-                  </div>
-                ))}
+                {data.agents.map((agent) => {
+                  const live = liveStatuses.find((s) => s.id === agent.id);
+                  const isWorking = live?.isWorking ?? false;
+                  return (
+                    <div
+                      key={agent.id}
+                      className="flex items-center gap-3 p-2 bg-bg-tertiary rounded"
+                    >
+                      <div className={`w-2 h-2 rounded-full ${isWorking ? 'bg-success animate-pulse' : 'bg-text-muted'}`} />
+                      <span className="text-sm font-mono">{agent.name}</span>
+                      <span className="text-xs text-text-muted ml-auto">{agent.id}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
