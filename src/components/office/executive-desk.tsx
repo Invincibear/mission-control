@@ -206,7 +206,7 @@ export default function ExecutiveDesk({
           agentId={agentId}
           isWorking={isWorking}
         />
-        <Billboard position={[0, 1.45, 0]} follow lockX={false} lockY={false} lockZ={false}>
+        <Billboard position={[0, 2.1, 0]} follow lockX={false} lockY={false} lockZ={false}>
           <mesh position={[0, 0, -0.01]}>
             <planeGeometry args={[agentName.length * 0.075 + 0.2, 0.18]} />
             <meshBasicMaterial color="#6366f1" transparent opacity={0.9} />
