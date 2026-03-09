@@ -27,12 +27,12 @@ function LoadedAvatar({
 }: GLBAvatarProps & { modelPath: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const isCass = agentId === 'cass' || agentId === 'main';
-  const { scene, animations } = useGLTF(modelPath);
-  const { actions, names } = useAnimations(animations, groupRef);
+  const gltf = useGLTF(modelPath);
+  const { actions, names } = useAnimations(gltf.animations, groupRef);
 
-  // Clone scene so multiple instances don't share geometry state
+  // Clone for independent instances + enable shadows
   const clonedScene = useMemo(() => {
-    const clone = scene.clone(true);
+    const clone = THREE.SkeletonUtils.clone(gltf.scene);
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -40,14 +40,19 @@ function LoadedAvatar({
       }
     });
     return clone;
-  }, [scene]);
+  }, [gltf.scene]);
 
-  // Scale model to ~1.0 units tall
-  // Mixamo models are in centimeters (~170cm tall), so scale is ~0.006
-  const scaleFactor = 0.006;
-  const offsetX = 0;
-  const offsetY = 0;
-  const offsetZ = 0;
+  // Auto-scale: normalize to ~1.0 units tall
+  const { scaleFactor, offsetY } = useMemo(() => {
+    const bbox = new THREE.Box3().setFromObject(clonedScene);
+    const size = new THREE.Vector3();
+    bbox.getSize(size);
+    const sf = 1.0 / (size.y || 1);
+    return {
+      scaleFactor: sf,
+      offsetY: -bbox.min.y * sf,
+    };
+  }, [clonedScene]);
 
   // Play animations based on state
   useEffect(() => {
@@ -96,9 +101,9 @@ function LoadedAvatar({
     <group ref={groupRef} position={position}>
       <group
         scale={[scaleFactor, scaleFactor, scaleFactor]}
-        position={[offsetX, offsetY, offsetZ]}
+        position={[0, offsetY, 0]}
       >
-        <primitive object={clonedScene} />
+        <primitive object={scene} />
       </group>
 
       {/* Status indicator */}
