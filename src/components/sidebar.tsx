@@ -28,7 +28,10 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  // Default collapsed on mobile (< 768px)
+  const [collapsed, setCollapsed] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
 
   return (
     <aside

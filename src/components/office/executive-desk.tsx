@@ -208,7 +208,8 @@ export default function ExecutiveDesk({
         />
         <Billboard position={[0, 2.1, 0]} follow lockX={false} lockY={false} lockZ={false}>
           <mesh position={[0, 0, -0.01]}>
-            <planeGeometry args={[agentName.length * 0.075 + 0.2, 0.18]} />
+            {/* +0.4 extra for the star emoji prefix */}
+            <planeGeometry args={[agentName.length * 0.075 + 0.55, 0.18]} />
             <meshBasicMaterial color="#6366f1" transparent opacity={0.9} />
           </mesh>
           <Text
