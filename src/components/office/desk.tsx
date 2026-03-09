@@ -140,13 +140,12 @@ export default function Desk({
       <Keyboard />
       <Mouse />
 
-      {/* Agent standing in front of desk, facing monitors */}
-      <group position={[0, 0, 0.7]} rotation={[0, Math.PI, 0]}>
+      {/* Agent standing behind desk */}
+      <group position={[0, 0, 0.7]}>
         <GLBAvatar
           color={agentColor}
           agentId={agentId}
           isWorking={isWorking}
-          scale={0.75}
         />
         {/* Floating name label above agent head — always faces camera */}
         <Billboard position={[0, 1.45, 0]} follow lockX={false} lockY={false} lockZ={false}>
