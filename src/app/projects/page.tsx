@@ -222,6 +222,7 @@ function KanbanSkeleton() {
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -231,9 +232,15 @@ export default function ProjectsPage() {
 
   const fetchProjects = useCallback(() => {
     fetch('/api/projects')
-      .then((r) => r.json())
-      .then((data) => setProjects(Array.isArray(data) ? data : []))
-      .catch(console.error)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setProjects(Array.isArray(data) ? data : []);
+        setError(false);
+      })
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -325,7 +332,9 @@ export default function ProjectsPage() {
         <p className="text-text-secondary text-sm mt-1">Manage your projects with drag-and-drop</p>
       </div>
 
-      {loading ? (
+      {error ? (
+        <div className="text-error text-sm">Failed to load projects. Try refreshing the page.</div>
+      ) : loading ? (
         <KanbanSkeleton />
       ) : (
         <DndContext

@@ -85,6 +85,8 @@ function FileTree({
             <>
               <button
                 onClick={() => toggle(file.relativePath)}
+                aria-expanded={expanded.has(file.relativePath)}
+                aria-label={`${expanded.has(file.relativePath) ? 'Collapse' : 'Expand'} ${file.name} folder`}
                 className="w-full flex items-center gap-1.5 px-2 py-1 hover:bg-bg-hover rounded text-sm text-text-secondary"
                 style={{ paddingLeft: `${depth * 16 + 8}px` }}
               >
@@ -171,7 +173,7 @@ export default function MemoryPage() {
   };
 
   return (
-    <div className="p-8 h-screen flex flex-col">
+    <div className="p-8 h-full flex flex-col">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Memory</h1>
         <p className="text-text-secondary text-sm mt-1">Browse and search agent memory files</p>
