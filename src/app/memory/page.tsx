@@ -182,6 +182,7 @@ export default function MemoryPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Search across all memory files..."
+            aria-label="Search memory files"
             className="w-full pl-9 pr-3 py-2 bg-bg-secondary border border-border rounded-lg text-sm focus:outline-none focus:border-accent"
           />
         </div>

@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/skeleton';
 import dynamic from 'next/dynamic';
 import type { EventInput } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
 
 const FullCalendar = dynamic(
   () => import('@fullcalendar/react').then((mod) => mod.default),
   { ssr: false, loading: () => <Skeleton className="h-[600px] w-full rounded-lg" /> }
 );
-
-// These need to be imported at the top level for the dynamic calendar
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
 
 interface CronJob {
   id: string;

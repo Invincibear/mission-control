@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface AgentStatus {
   id: string;
@@ -12,8 +12,14 @@ interface AgentStatus {
 export function useAgentStatus() {
   const [statuses, setStatuses] = useState<AgentStatus[]>([]);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
+  const connect = useCallback(() => {
+    // Clean up any existing connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+
     const es = new EventSource('/api/agents/status?stream=true');
     eventSourceRef.current = es;
 
@@ -27,20 +33,25 @@ export function useAgentStatus() {
     };
 
     es.onerror = () => {
-      // Reconnect after 5 seconds on error
       es.close();
-      setTimeout(() => {
-        const newEs = new EventSource('/api/agents/status?stream=true');
-        eventSourceRef.current = newEs;
-        newEs.onmessage = es.onmessage;
-        newEs.onerror = es.onerror;
-      }, 5000);
-    };
-
-    return () => {
-      es.close();
+      eventSourceRef.current = null;
+      // Reconnect after 5 seconds
+      reconnectTimerRef.current = setTimeout(connect, 5000);
     };
   }, []);
+
+  useEffect(() => {
+    connect();
+
+    return () => {
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+    };
+  }, [connect]);
 
   return statuses;
 }

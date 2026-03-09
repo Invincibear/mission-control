@@ -149,12 +149,14 @@ function AddProjectForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Project title"
+        aria-label="Project title"
         className="w-full bg-transparent text-sm focus:outline-none placeholder:text-text-muted"
       />
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Description (optional)"
+        aria-label="Project description"
         rows={2}
         className="w-full bg-transparent text-xs text-text-secondary focus:outline-none placeholder:text-text-muted resize-none"
       />
@@ -162,6 +164,7 @@ function AddProjectForm({
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
+          aria-label="Priority"
           className="bg-bg-tertiary text-xs border border-border rounded px-2 py-1 focus:outline-none"
         >
           <option value="low">Low</option>

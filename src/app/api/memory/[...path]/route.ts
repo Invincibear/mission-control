@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readMemoryFile, getMemorySources } from '@/lib/memory';
-import { join } from 'path';
+import { resolve } from 'path';
 
 export async function GET(
   _request: NextRequest,
@@ -11,6 +11,11 @@ export async function GET(
     const agentId = pathParts[0];
     const filePath = pathParts.slice(1).join('/');
 
+    // Reject path segments that attempt traversal
+    if (pathParts.some((p) => p === '..' || p === '.')) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
     const sources = getMemorySources();
     const source = sources.find((s) => s.agentId === agentId);
 
@@ -18,10 +23,12 @@ export async function GET(
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
-    const fullPath = join(source.basePath, filePath);
+    // Use resolve() to normalize the path, preventing traversal via encoded segments
+    const resolvedBase = resolve(source.basePath);
+    const fullPath = resolve(source.basePath, filePath);
 
-    // Security: ensure the path is within the memory directory
-    if (!fullPath.startsWith(source.basePath)) {
+    // Security: ensure the resolved path is within the memory directory
+    if (!fullPath.startsWith(resolvedBase + '/') && fullPath !== resolvedBase) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
