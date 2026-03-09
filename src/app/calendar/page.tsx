@@ -18,7 +18,7 @@ interface CronJob {
   name: string;
   enabled: boolean;
   schedule: string;
-  nextRun: string;
+  nextRun: string | null;
 }
 
 interface Project {
@@ -31,7 +31,7 @@ interface Project {
 
 function cronToEvents(crons: CronJob[]): EventInput[] {
   return crons
-    .filter((c) => c.enabled)
+    .filter((c): c is CronJob & { nextRun: string } => c.enabled && c.nextRun !== null)
     .map((cron) => ({
       id: `cron-${cron.id}`,
       title: cron.name,
