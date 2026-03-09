@@ -255,16 +255,31 @@ export default function ProjectsPage() {
   };
 
   const deleteProject = async (id: string) => {
-    await fetch(`/api/projects?id=${id}`, { method: 'DELETE' });
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    // Optimistic: remove from UI immediately, roll back on failure
+    const prev = projects;
+    setProjects((p) => p.filter((proj) => proj.id !== id));
+    try {
+      const res = await fetch(`/api/projects?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      setProjects(prev);
+    }
   };
 
   const updateProject = async (id: string, updates: Partial<Project>) => {
-    await fetch('/api/projects', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, ...updates }),
-    });
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      if (!res.ok) {
+        // Refetch to resync UI with server state
+        fetchProjects();
+      }
+    } catch {
+      fetchProjects();
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {

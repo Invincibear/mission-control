@@ -1,9 +1,9 @@
 'use client';
 
 import { Component, useRef, useState, useEffect, useMemo, type ReactNode } from 'react';
-import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
+import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import AgentAvatar from './agent-avatar';
 
 interface GLBAvatarProps {
@@ -28,17 +28,23 @@ function LoadedAvatar({
   const groupRef = useRef<THREE.Group>(null);
   const isCass = agentId === 'cass' || agentId === 'main';
   const { scene, animations } = useGLTF(modelPath);
-  const { actions, names } = useAnimations(animations, groupRef);
 
-  // Enable shadows on load
-  useEffect(() => {
-    scene.traverse((child) => {
+  // Clone the scene so each agent gets its own instance.
+  // useGLTF caches and returns a shared scene — without cloning,
+  // only the last-rendered agent using this model path would be visible
+  // (a Three.js Object3D can only belong to one parent).
+  const clonedScene = useMemo(() => {
+    const clone = cloneWithSkeleton(scene);
+    clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
+    return clone;
   }, [scene]);
+
+  const { actions, names } = useAnimations(animations, groupRef);
 
   // Auto-scale: measure model height, scale to desk-appropriate size
   const { scaleFactor, offsetY } = useMemo(() => {
@@ -104,7 +110,7 @@ function LoadedAvatar({
         scale={[scaleFactor, scaleFactor, scaleFactor]}
         position={[0, offsetY, 0]}
       >
-        <primitive object={scene} />
+        <primitive object={clonedScene} />
       </group>
 
       {/* Status indicator */}
