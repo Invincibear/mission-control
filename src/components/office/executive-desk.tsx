@@ -199,8 +199,8 @@ export default function ExecutiveDesk({
         </Text>
       </group>
 
-      {/* ---- AGENT (behind desk, facing room) ---- */}
-      <group position={[0, 0, -0.8]} rotation={[0, Math.PI, 0]}>
+      {/* ---- AGENT (front of desk, facing monitors) ---- */}
+      <group position={[0, 0, 0.8]}>
         <AgentAvatar
           color={agentColor}
           agentId={agentId}
