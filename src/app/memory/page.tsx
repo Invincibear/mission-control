@@ -171,7 +171,7 @@ export default function MemoryPage() {
   };
 
   return (
-    <div className="p-8 h-[calc(100vh-0px)] flex flex-col">
+    <div className="p-8 h-screen flex flex-col">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Memory</h1>
         <p className="text-text-secondary text-sm mt-1">Browse and search agent memory files</p>
@@ -199,6 +199,7 @@ export default function MemoryPage() {
         {searchResults !== null && (
           <button
             onClick={() => setSearchResults(null)}
+            aria-label="Clear search results"
             className="px-3 py-2 bg-bg-secondary border border-border rounded-lg text-sm text-text-secondary hover:bg-bg-hover"
           >
             <X className="w-4 h-4" />

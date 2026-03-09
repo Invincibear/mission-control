@@ -100,6 +100,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Sanitize string inputs with the same limits as POST
+    if (body.title !== undefined) body.title = String(body.title).slice(0, MAX_TITLE_LENGTH);
+    if (body.description !== undefined) body.description = String(body.description).slice(0, MAX_DESCRIPTION_LENGTH);
+    if (body.assignee !== undefined && body.assignee !== null) body.assignee = String(body.assignee).slice(0, 100);
+
     const UPDATABLE_FIELDS = ['title', 'description', 'status', 'priority', 'assignee', 'position'] as const;
     const fields: string[] = [];
     const values: unknown[] = [];

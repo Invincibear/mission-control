@@ -94,6 +94,7 @@ export default function Sidebar() {
             collapsed ? 'justify-center px-2 py-2' : 'px-3 py-2'
           }`}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
             <PanelLeftOpen className="w-4 h-4" />
