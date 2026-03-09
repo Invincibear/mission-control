@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
-import AgentAvatar from './agent-avatar';
+import GLBAvatar from './glb-avatar';
 
 interface ExecutiveDeskProps {
   position: [number, number, number];
@@ -201,7 +201,7 @@ export default function ExecutiveDesk({
 
       {/* ---- AGENT (front of desk, facing monitors) ---- */}
       <group position={[0, 0, 0.8]}>
-        <AgentAvatar
+        <GLBAvatar
           color={agentColor}
           agentId={agentId}
           isWorking={isWorking}

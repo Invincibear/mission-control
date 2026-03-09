@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
-import AgentAvatar from './agent-avatar';
+import GLBAvatar from './glb-avatar';
 
 interface DeskProps {
   position: [number, number, number];
@@ -142,7 +142,7 @@ export default function Desk({
 
       {/* Agent standing behind desk */}
       <group position={[0, 0, 0.7]}>
-        <AgentAvatar
+        <GLBAvatar
           color={agentColor}
           agentId={agentId}
           isWorking={isWorking}
