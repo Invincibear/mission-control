@@ -124,6 +124,7 @@ function FileTree({
 export default function MemoryPage() {
   const [sources, setSources] = useState<MemorySource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [selectedFile, setSelectedFile] = useState<{ content: string; path: string } | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,9 +133,12 @@ export default function MemoryPage() {
 
   useEffect(() => {
     fetch('/api/memory')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(setSources)
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -202,7 +206,9 @@ export default function MemoryPage() {
         )}
       </div>
 
-      {searchResults !== null ? (
+      {error ? (
+        <div className="text-error text-sm">Failed to load memory files.</div>
+      ) : searchResults !== null ? (
         <div className="flex-1 overflow-y-auto bg-bg-secondary border border-border rounded-lg p-4">
           <h3 className="text-sm font-medium mb-3">
             {searching ? (

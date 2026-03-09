@@ -100,6 +100,7 @@ function StatusBadge({ status, enabled }: { status: string | null; enabled: bool
 export default function CronsPage() {
   const [crons, setCrons] = useState<CronJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function CronsPage() {
         return r.json();
       })
       .then(setCrons)
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -125,7 +126,11 @@ export default function CronsPage() {
         </p>
       </div>
 
-      {!loading && (
+      {error && (
+        <div className="text-error text-sm mb-6">Failed to load cron jobs.</div>
+      )}
+
+      {!loading && !error && (
         <div className="flex gap-3 mb-6">
           <div className="bg-bg-secondary border border-border rounded-lg px-4 py-2 flex items-center gap-2">
             <span className="text-2xl font-mono font-semibold">{crons.length}</span>

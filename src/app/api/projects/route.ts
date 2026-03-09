@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 
 const VALID_STATUSES = ['concept', 'todo', 'active', 'in-review', 'done'] as const;
 const VALID_PRIORITIES = ['low', 'medium', 'high', 'critical'] as const;
+const MAX_TITLE_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 2000;
 
 export async function GET() {
   try {
@@ -29,6 +31,8 @@ export async function POST(request: NextRequest) {
     const db = getDb();
     const id = uuidv4();
 
+    const title = String(body.title || 'Untitled').slice(0, MAX_TITLE_LENGTH);
+    const description = String(body.description || '').slice(0, MAX_DESCRIPTION_LENGTH);
     const status = body.status || 'concept';
     const priority = body.priority || 'medium';
 
@@ -56,11 +60,11 @@ export async function POST(request: NextRequest) {
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(
       id,
-      body.title || 'Untitled',
-      body.description || '',
+      title,
+      description,
       status,
       priority,
-      body.assignee || null,
+      body.assignee ? String(body.assignee).slice(0, 100) : null,
       position
     );
 

@@ -32,6 +32,7 @@ const agentColors = ['bg-accent', 'bg-success', 'bg-warning', 'bg-error', 'bg-in
 export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [memoryFiles, setMemoryFiles] = useState<Record<string, string[]>>({});
 
@@ -42,7 +43,7 @@ export default function AgentsPage() {
         return r.json();
       })
       .then(setAgents)
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -88,7 +89,9 @@ export default function AgentsPage() {
       </div>
 
       <div className="space-y-3">
-        {loading ? (
+        {error ? (
+          <div className="text-error text-sm">Failed to load agents. Check that openclaw.json exists.</div>
+        ) : loading ? (
           <>
             <AgentCardSkeleton />
             <AgentCardSkeleton />

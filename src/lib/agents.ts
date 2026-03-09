@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 
@@ -31,8 +31,15 @@ export interface AgentsConfig {
 
 export function getOpenClawConfig(): Record<string, unknown> {
   const configPath = join(homedir(), '.openclaw', 'openclaw.json');
+  if (!existsSync(configPath)) {
+    throw new Error(`OpenClaw config not found at ${configPath}`);
+  }
   const raw = readFileSync(configPath, 'utf-8');
-  return JSON.parse(raw);
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error('OpenClaw config file contains invalid JSON');
+  }
 }
 
 export function getAgents(): AgentDef[] {
