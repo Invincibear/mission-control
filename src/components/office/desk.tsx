@@ -42,17 +42,17 @@ function Monitor({
       {/* Monitor stand */}
       <mesh position={[0, -0.15, 0]}>
         <cylinderGeometry args={[0.02, 0.025, 0.3, 8]} />
-        <meshStandardMaterial color="#2a2a35" metalness={0.6} roughness={0.3} />
+        <meshStandardMaterial color="#c0c0c8" metalness={0.6} roughness={0.3} />
       </mesh>
       {/* Stand base */}
       <mesh position={[0, -0.3, 0.03]}>
         <boxGeometry args={[0.12, 0.01, 0.08]} />
-        <meshStandardMaterial color="#2a2a35" metalness={0.6} roughness={0.3} />
+        <meshStandardMaterial color="#c0c0c8" metalness={0.6} roughness={0.3} />
       </mesh>
       {/* Screen bezel */}
       <mesh>
         <boxGeometry args={[0.5, 0.32, 0.015]} />
-        <meshStandardMaterial color="#1a1a22" metalness={0.3} roughness={0.5} />
+        <meshStandardMaterial color="#222228" metalness={0.3} roughness={0.5} />
       </mesh>
       {/* Screen */}
       <mesh ref={screenRef} position={[0, 0, 0.009]}>
@@ -106,13 +106,13 @@ export default function Desk({
 }: DeskProps) {
   return (
     <group position={position} rotation={rotation}>
-      {/* Desk surface */}
+      {/* Desk surface - white/light */}
       <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.6, 0.04, 0.7]} />
-        <meshStandardMaterial color="#3a3545" metalness={0.1} roughness={0.7} />
+        <meshStandardMaterial color="#f0ece8" metalness={0.05} roughness={0.5} />
       </mesh>
 
-      {/* Desk legs - metal */}
+      {/* Desk legs - silver metal */}
       {(
         [
           [-0.72, 0.36, -0.3],
@@ -123,14 +123,14 @@ export default function Desk({
       ).map((pos, i) => (
         <mesh key={i} position={pos}>
           <boxGeometry args={[0.035, 0.72, 0.035]} />
-          <meshStandardMaterial color="#2a2a35" metalness={0.7} roughness={0.3} />
+          <meshStandardMaterial color="#c0c0c8" metalness={0.7} roughness={0.3} />
         </mesh>
       ))}
 
       {/* Modesty panel */}
       <mesh position={[0, 0.4, -0.32]}>
         <boxGeometry args={[1.5, 0.6, 0.015]} />
-        <meshStandardMaterial color="#2a2535" metalness={0.1} roughness={0.8} />
+        <meshStandardMaterial color="#e0dcd8" metalness={0.05} roughness={0.8} />
       </mesh>
 
       {/* Monitors */}

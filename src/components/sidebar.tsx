@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -11,6 +12,8 @@ import {
   Calendar,
   Brain,
   Terminal,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,19 +28,28 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className="w-56 h-screen bg-bg-secondary border-r border-border flex flex-col shrink-0">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-5 h-5 text-accent" />
-          <h1 className="font-mono text-sm font-bold tracking-wide text-text-primary">
-            Mission Control
-          </h1>
+    <aside
+      className={`h-screen bg-bg-secondary border-r border-border flex flex-col shrink-0 transition-all duration-200 ${
+        collapsed ? 'w-16' : 'w-56'
+      }`}
+    >
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center w-full' : ''}`}>
+          <Terminal className="w-5 h-5 text-accent shrink-0" />
+          {!collapsed && (
+            <div>
+              <h1 className="font-mono text-sm font-bold tracking-wide text-text-primary">
+                Mission Control
+              </h1>
+              <p className="text-[10px] font-mono text-text-muted tracking-widest uppercase">
+                OpenClaw
+              </p>
+            </div>
+          )}
         </div>
-        <p className="text-[10px] font-mono text-text-muted mt-1 tracking-widest uppercase">
-          OpenClaw
-        </p>
       </div>
 
       <nav className="flex-1 p-2 space-y-0.5">
@@ -51,23 +63,44 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+              title={collapsed ? item.label : undefined}
+              className={`flex items-center gap-3 rounded-md text-sm transition-colors ${
+                collapsed ? 'justify-center px-2 py-2' : 'px-3 py-2'
+              } ${
                 isActive
                   ? 'bg-accent/10 text-accent'
                   : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              {item.label}
+              <Icon className="w-4 h-4 shrink-0" />
+              {!collapsed && item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 px-2">
+      <div className="p-2 border-t border-border space-y-1">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={`flex items-center gap-2 w-full rounded-md text-xs text-text-muted hover:text-text-secondary hover:bg-bg-hover transition-colors ${
+            collapsed ? 'justify-center px-2 py-2' : 'px-3 py-2'
+          }`}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="w-4 h-4" />
+          ) : (
+            <>
+              <PanelLeftClose className="w-4 h-4" />
+              <span>Collapse</span>
+            </>
+          )}
+        </button>
+        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center px-2' : 'px-3'}`}>
           <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-          <span className="text-xs text-text-muted font-mono">System Online</span>
+          {!collapsed && (
+            <span className="text-xs text-text-muted font-mono">System Online</span>
+          )}
         </div>
       </div>
     </aside>
