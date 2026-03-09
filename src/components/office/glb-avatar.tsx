@@ -40,12 +40,15 @@ function LoadedAvatar({
     });
   }, [scene]);
 
-  // Auto-scale to ~1.0 units tall
+  // Auto-scale: measure model height, scale to desk-appropriate size
   const { scaleFactor, offsetY } = useMemo(() => {
     const bbox = new THREE.Box3().setFromObject(scene);
     const size = new THREE.Vector3();
     bbox.getSize(size);
-    const sf = 1.0 / (size.y || 1);
+    // Desks are ~0.8 units tall, characters should tower over them (~1.8 units)
+    const rawHeight = size.y || 1;
+    const targetHeight = 1.8;
+    const sf = targetHeight / rawHeight;
     return {
       scaleFactor: sf,
       offsetY: -bbox.min.y * sf,
@@ -59,14 +62,15 @@ function LoadedAvatar({
     // Stop all current animations
     Object.values(actions).forEach((action) => action?.stop());
 
-    // Try to find the best animation for current state
-    const idleNames = ['Idle', 'idle', 'breathing_idle', 'Standing'];
-    const workingNames = ['Walk', 'walk', 'agree', 'Run', 'run'];
-    const danceNames = ['SambaDance', 'Dance', 'dance'];
-
+    // Try to find the best animation — Quaternius uses "CharacterArmature|Name" format
     const findAnim = (preferred: string[]) => {
       for (const name of preferred) {
+        // Try exact match first, then partial match (for "CharacterArmature|Idle" etc)
         if (actions[name]) return actions[name];
+        const partial = Object.keys(actions).find(
+          (k) => k.toLowerCase().includes(name.toLowerCase())
+        );
+        if (partial && actions[partial]) return actions[partial];
       }
       return null;
     };
@@ -74,16 +78,15 @@ function LoadedAvatar({
     let action: THREE.AnimationAction | null = null;
 
     if (isWorking) {
-      action = findAnim(workingNames) || findAnim(idleNames);
+      action = findAnim(['Interact', 'Walk', 'Run', 'Idle']);
     } else {
-      action = findAnim(idleNames);
+      action = findAnim(['Idle', 'Idle_Neutral', 'Idle_Gun', 'Wave']);
     }
 
-    // If no good animation found, DON'T play dance anims (they move root)
-    // Just let the model stand in its default pose
+    // Last resort — play the first available animation
     if (!action && names.length > 0) {
-      // Try TPose as a last resort (static standing)
-      action = findAnim(['TPose', 'tpose', 'T-Pose']);
+      const firstKey = Object.keys(actions).find((k) => actions[k]);
+      if (firstKey) action = actions[firstKey]!;
     }
 
     if (action) {
