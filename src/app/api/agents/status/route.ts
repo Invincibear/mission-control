@@ -1,6 +1,8 @@
 import { getAgents } from '@/lib/agents';
 import { execSync } from 'child_process';
 
+export const dynamic = 'force-dynamic';
+
 interface AgentStatus {
   id: string;
   name: string;
@@ -11,13 +13,16 @@ interface AgentStatus {
 function getAgentStatuses(): AgentStatus[] {
   const agents = getAgents();
 
-  // Check for active sessions/subagents via openclaw
+  // Check for active coding agent processes
   let activeSessions: string[] = [];
   try {
-    const output = execSync('ps aux', { timeout: 3000 }).toString();
+    const output = execSync(
+      'ps aux | grep -E "claude|codex|opencode" | grep -v grep',
+      { timeout: 3000 }
+    ).toString();
     activeSessions = output.split('\n');
   } catch {
-    // fallback: no process info
+    // grep returns exit 1 when no matches — that's fine
   }
 
   return agents.map((agent) => {

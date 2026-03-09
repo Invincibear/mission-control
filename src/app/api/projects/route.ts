@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, type Project } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { safeErrorMessage } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export async function GET() {
     return NextResponse.json(projects);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to load projects', details: String(error) },
+      { error: 'Failed to load projects', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create project', details: String(error) },
+      { error: 'Failed to create project', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }
@@ -95,14 +96,22 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const UPDATABLE_FIELDS = ['title', 'description', 'status', 'priority', 'assignee', 'position'] as const;
     const fields: string[] = [];
     const values: unknown[] = [];
 
-    for (const key of ['title', 'description', 'status', 'priority', 'assignee', 'position']) {
+    for (const key of UPDATABLE_FIELDS) {
       if (body[key] !== undefined) {
         fields.push(`${key} = ?`);
         values.push(body[key]);
       }
+    }
+
+    if (fields.length === 0) {
+      return NextResponse.json(
+        { error: 'No valid fields to update' },
+        { status: 400 }
+      );
     }
 
     fields.push("updated_at = datetime('now')");
@@ -114,7 +123,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(project);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update project', details: String(error) },
+      { error: 'Failed to update project', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }
@@ -134,7 +143,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to delete project', details: String(error) },
+      { error: 'Failed to delete project', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }

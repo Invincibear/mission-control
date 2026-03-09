@@ -199,8 +199,8 @@ export default function ExecutiveDesk({
         </Text>
       </group>
 
-      {/* ---- AGENT (front of desk, facing monitors) ---- */}
-      <group position={[0, 0, 0.8]}>
+      {/* ---- AGENT (in front of desk, facing monitors) ---- */}
+      <group position={[0, 0, 1.0]} rotation={[0, Math.PI, 0]}>
         <GLBAvatar
           color={agentColor}
           agentId={agentId}

@@ -42,63 +42,55 @@ function LoadedAvatar({
     return clone;
   }, [scene]);
 
-  // Auto-scale model to ~1.0 units tall
-  const { scaleFactor, offsetX, offsetY, offsetZ } = useMemo(() => {
-    const bbox = new THREE.Box3().setFromObject(clonedScene);
-    const size = new THREE.Vector3();
-    bbox.getSize(size);
-    const targetHeight = 1.0;
-    const sf = targetHeight / (size.y || 1);
-    const center = new THREE.Vector3();
-    bbox.getCenter(center);
-    return {
-      scaleFactor: sf,
-      offsetX: -center.x * sf,
-      offsetY: -bbox.min.y * sf,
-      offsetZ: -center.z * sf,
-    };
-  }, [clonedScene]);
+  // Scale model to ~1.0 units tall
+  // Mixamo models are in centimeters (~170cm tall), so scale is ~0.006
+  const scaleFactor = 0.006;
+  const offsetX = 0;
+  const offsetY = 0;
+  const offsetZ = 0;
 
-  // Play animations based on model type and state
+  // Play animations based on state
   useEffect(() => {
     if (!actions || names.length === 0) return;
 
     // Stop all current animations
     Object.values(actions).forEach((action) => action?.stop());
 
-    if (isCass) {
-      // Michelle model: has 'SambaDance' and 'TPose'
-      // Use TPose as base, animate via useFrame
-      const tpose = actions['TPose'];
-      if (tpose) {
-        tpose.reset().play();
-        tpose.paused = true; // Freeze in T-pose, we'll animate manually
+    // Try to find the best animation for current state
+    const idleNames = ['Idle', 'idle', 'breathing_idle', 'Standing'];
+    const workingNames = ['Walk', 'walk', 'agree', 'Run', 'run'];
+    const danceNames = ['SambaDance', 'Dance', 'dance'];
+
+    const findAnim = (preferred: string[]) => {
+      for (const name of preferred) {
+        if (actions[name]) return actions[name];
       }
+      return null;
+    };
+
+    let action: THREE.AnimationAction | null = null;
+
+    if (isWorking) {
+      action = findAnim(workingNames) || findAnim(idleNames);
     } else {
-      // Xbot: has 'idle', 'walk', 'run', etc.
-      const animName = isWorking ? 'agree' : 'idle';
-      const action = actions[animName] || actions[names[0]];
-      if (action) {
-        action.reset().fadeIn(0.3).play();
-      }
+      action = findAnim(idleNames);
+    }
+
+    // If no good animation found, DON'T play dance anims (they move root)
+    // Just let the model stand in its default pose
+    if (!action && names.length > 0) {
+      // Try TPose as a last resort (static standing)
+      action = findAnim(['TPose', 'tpose', 'T-Pose']);
+    }
+
+    if (action) {
+      action.reset().fadeIn(0.3).play();
     }
 
     return () => {
-      Object.values(actions).forEach((action) => action?.stop());
+      Object.values(actions).forEach((a) => a?.stop());
     };
-  }, [actions, names, isWorking, isCass]);
-
-  // Manual idle animation for models without good idle clips
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const t = clock.getElapsedTime();
-
-    if (isCass) {
-      // Gentle breathing/sway for Michelle (since she only has SambaDance)
-      groupRef.current.position.y = position[1] + Math.sin(t * 1.5) * 0.005;
-      groupRef.current.rotation.y = Math.sin(t * 0.4) * 0.04;
-    }
-  });
+  }, [actions, names, isWorking]);
 
   return (
     <group ref={groupRef} position={position}>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMemorySources, searchMemoryFiles } from '@/lib/memory';
+import { safeErrorMessage } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(sources);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to load memory', details: String(error) },
+      { error: 'Failed to load memory', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }

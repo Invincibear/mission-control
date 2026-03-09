@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readMemoryFile, getMemorySources } from '@/lib/memory';
 import { resolve } from 'path';
+import { safeErrorMessage } from '@/lib/errors';
 
 export async function GET(
   _request: NextRequest,
@@ -36,7 +37,7 @@ export async function GET(
     return NextResponse.json({ content, path: fullPath });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to read file', details: String(error) },
+      { error: 'Failed to read file', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }

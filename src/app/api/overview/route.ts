@@ -3,6 +3,7 @@ import { getAgents } from '@/lib/agents';
 import { getDb, type Project } from '@/lib/db';
 import { getMemorySources } from '@/lib/memory';
 import { getCronSummary } from '@/lib/crons';
+import { safeErrorMessage } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +54,7 @@ export async function GET() {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to load overview', details: String(error) },
+      { error: 'Failed to load overview', details: safeErrorMessage(error) },
       { status: 500 }
     );
   }
