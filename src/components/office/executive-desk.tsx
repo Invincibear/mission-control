@@ -66,42 +66,18 @@ function WideMonitor({
   );
 }
 
-function MechanicalKeyboard() {
+function CoffeeMug({ position, mugColor = '#f8f4f0' }: { position: [number, number, number]; mugColor?: string }) {
   return (
-    <group position={[0, 0.78, 0.18]}>
-      {/* Keyboard body - slightly angled */}
-      <mesh rotation={[0.05, 0, 0]}>
-        <boxGeometry args={[0.38, 0.015, 0.13]} />
-        <meshStandardMaterial color="#2a2a30" metalness={0.3} roughness={0.5} />
+    <group position={position}>
+      {/* Mug body */}
+      <mesh>
+        <cylinderGeometry args={[0.035, 0.03, 0.07, 8]} />
+        <meshStandardMaterial color={mugColor} roughness={0.6} />
       </mesh>
-      {/* Key rows */}
-      {[0.04, 0.02, 0, -0.02, -0.04].map((z, i) => (
-        <mesh key={i} position={[0, 0.009, z]} rotation={[0.05, 0, 0]}>
-          <boxGeometry args={[0.34, 0.004, 0.014]} />
-          <meshStandardMaterial color="#353540" />
-        </mesh>
-      ))}
-      {/* Wrist rest */}
-      <mesh position={[0, 0.003, 0.1]}>
-        <boxGeometry args={[0.38, 0.01, 0.05]} />
-        <meshStandardMaterial color="#3a3a42" roughness={0.8} />
-      </mesh>
-    </group>
-  );
-}
-
-function GamingMouse() {
-  return (
-    <group position={[0.4, 0.78, 0.18]}>
-      {/* Mouse pad */}
-      <mesh position={[0, -0.002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.2, 0.18]} />
-        <meshStandardMaterial color="#1a1a22" roughness={0.95} />
-      </mesh>
-      {/* Mouse body */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <capsuleGeometry args={[0.018, 0.035, 6, 8]} />
-        <meshStandardMaterial color="#1e1e28" metalness={0.3} roughness={0.4} />
+      {/* Handle */}
+      <mesh position={[0.04, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.018, 0.005, 6, 12, Math.PI]} />
+        <meshStandardMaterial color={mugColor} roughness={0.6} />
       </mesh>
     </group>
   );
@@ -116,32 +92,25 @@ export default function ExecutiveDesk({
 }: ExecutiveDeskProps) {
   return (
     <group position={position}>
-      {/* ---- DESK SURFACE — larger L-shape ---- */}
-      {/* Main desk surface */}
+      {/* ---- DOUBLE-WIDE DESK SURFACE ---- */}
       <mesh position={[0, 0.74, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.2, 0.05, 0.9]} />
-        <meshStandardMaterial color="#f5f0ec" metalness={0.05} roughness={0.4} />
-      </mesh>
-      {/* Side wing (L-shape extension) */}
-      <mesh position={[-1.2, 0.74, -0.5]} castShadow receiveShadow>
-        <boxGeometry args={[0.7, 0.05, 0.6]} />
+        <boxGeometry args={[3.2, 0.05, 0.9]} />
         <meshStandardMaterial color="#f5f0ec" metalness={0.05} roughness={0.4} />
       </mesh>
 
-      {/* Desk edge trim — dark accent */}
+      {/* Desk edge trim — indigo accent */}
       <mesh position={[0, 0.74, 0.45]}>
-        <boxGeometry args={[2.2, 0.05, 0.015]} />
+        <boxGeometry args={[3.2, 0.05, 0.015]} />
         <meshStandardMaterial color="#6366f1" metalness={0.3} roughness={0.5} />
       </mesh>
 
       {/* Legs — brushed steel */}
       {(
         [
-          [-1.0, 0.37, -0.38],
-          [1.0, 0.37, -0.38],
-          [-1.0, 0.37, 0.38],
-          [1.0, 0.37, 0.38],
-          [-1.5, 0.37, -0.75],
+          [-1.5, 0.37, -0.38],
+          [1.5, 0.37, -0.38],
+          [-1.5, 0.37, 0.38],
+          [1.5, 0.37, 0.38],
         ] as [number, number, number][]
       ).map((pos, i) => (
         <mesh key={i} position={pos}>
@@ -152,35 +121,47 @@ export default function ExecutiveDesk({
 
       {/* Modesty panel — back */}
       <mesh position={[0, 0.42, -0.42]}>
-        <boxGeometry args={[2.1, 0.62, 0.015]} />
+        <boxGeometry args={[3.1, 0.62, 0.015]} />
         <meshStandardMaterial color="#e8e4e0" metalness={0.05} roughness={0.7} />
       </mesh>
 
-      {/* ---- TRIPLE ULTRAWIDE MONITORS ---- */}
-      <WideMonitor position={[-0.5, 1.12, -0.2]} isWorking={isWorking} color={agentColor} />
-      <WideMonitor position={[0.5, 1.12, -0.2]} isWorking={isWorking} color={agentColor} />
-      {/* Side monitor on L-wing */}
-      <group position={[-1.2, 1.05, -0.5]} rotation={[0, 0.4, 0]}>
-        <WideMonitor position={[0, 0, 0]} isWorking={isWorking} color={agentColor} />
+      {/* ---- TRIPLE MONITORS — centered ---- */}
+      <WideMonitor position={[-0.85, 1.12, -0.2]} isWorking={isWorking} color={agentColor} />
+      <WideMonitor position={[0, 1.12, -0.2]} isWorking={isWorking} color={agentColor} />
+      <WideMonitor position={[0.85, 1.12, -0.2]} isWorking={isWorking} color={agentColor} />
+
+      {/* ---- KEYBOARD + MOUSE ---- */}
+      {/* Keyboard */}
+      <group position={[0, 0.78, 0.18]}>
+        <mesh rotation={[0.05, 0, 0]}>
+          <boxGeometry args={[0.38, 0.015, 0.13]} />
+          <meshStandardMaterial color="#2a2a30" metalness={0.3} roughness={0.5} />
+        </mesh>
+        {[0.04, 0.02, 0, -0.02, -0.04].map((z, i) => (
+          <mesh key={i} position={[0, 0.009, z]} rotation={[0.05, 0, 0]}>
+            <boxGeometry args={[0.34, 0.004, 0.014]} />
+            <meshStandardMaterial color="#353540" />
+          </mesh>
+        ))}
+      </group>
+      {/* Mouse + pad */}
+      <group position={[0.4, 0.77, 0.18]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.2, 0.18]} />
+          <meshStandardMaterial color="#1a1a22" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <capsuleGeometry args={[0.018, 0.035, 6, 8]} />
+          <meshStandardMaterial color="#1e1e28" metalness={0.3} roughness={0.4} />
+        </mesh>
       </group>
 
-      <MechanicalKeyboard />
-      <GamingMouse />
+      {/* ---- COFFEE MUGS ---- */}
+      <CoffeeMug position={[-1.2, 0.81, 0.25]} mugColor="#6366f1" />
+      <CoffeeMug position={[1.2, 0.81, 0.2]} mugColor="#f8f4f0" />
 
-      {/* ---- DESK ACCESSORIES ---- */}
-      {/* Coffee mug with lobster emoji */}
-      <mesh position={[0.75, 0.8, 0.25]}>
-        <cylinderGeometry args={[0.035, 0.03, 0.07, 8]} />
-        <meshStandardMaterial color="#6366f1" roughness={0.6} />
-      </mesh>
-      {/* Mug handle */}
-      <mesh position={[0.785, 0.8, 0.25]} rotation={[0, 0, Math.PI / 2]}>
-        <torusGeometry args={[0.018, 0.005, 6, 12, Math.PI]} />
-        <meshStandardMaterial color="#6366f1" roughness={0.6} />
-      </mesh>
-
-      {/* Small desk plant */}
-      <group position={[-0.85, 0.77, 0.25]}>
+      {/* ---- DESK PLANT ---- */}
+      <group position={[-1.4, 0.77, -0.15]}>
         <mesh>
           <cylinderGeometry args={[0.04, 0.035, 0.06, 8]} />
           <meshStandardMaterial color="#d4a574" roughness={0.85} />
@@ -200,7 +181,7 @@ export default function ExecutiveDesk({
         })}
       </group>
 
-      {/* ---- NAME PLATE on desk — engraved style ---- */}
+      {/* ---- NAME PLATE ---- */}
       <group position={[0, 0.77, 0.38]}>
         <mesh>
           <boxGeometry args={[0.3, 0.06, 0.03]} />
@@ -218,14 +199,13 @@ export default function ExecutiveDesk({
         </Text>
       </group>
 
-      {/* ---- AGENT (facing the room — boss position) ---- */}
+      {/* ---- AGENT (behind desk, facing room) ---- */}
       <group position={[0, 0, -0.8]} rotation={[0, Math.PI, 0]}>
         <AgentAvatar
           color={agentColor}
           agentId={agentId}
           isWorking={isWorking}
         />
-        {/* Floating name label */}
         <Billboard position={[0, 1.45, 0]} follow lockX={false} lockY={false} lockZ={false}>
           <mesh position={[0, 0, -0.01]}>
             <planeGeometry args={[agentName.length * 0.075 + 0.2, 0.18]} />
