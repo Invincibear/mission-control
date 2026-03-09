@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { homedir } from 'os';
 import { safeErrorMessage } from '@/lib/errors';
+import { getOpenClawConfig } from '@/lib/agents';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,10 +22,8 @@ interface AgentStatus {
 
 export async function GET() {
   try {
-    // Read agent config
-    const configPath = path.join(OPENCLAW_DIR, 'openclaw.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    const agentsList = config.agents?.list || [];
+    const config = getOpenClawConfig();
+    const agentsList = (config.agents as { list?: { id: string; name?: string }[] })?.list || [];
 
     const now = Date.now();
     const statuses: AgentStatus[] = [];

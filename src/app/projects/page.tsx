@@ -249,15 +249,20 @@ export default function ProjectsPage() {
   }, [fetchProjects]);
 
   const addProject = async (data: { title: string; description: string; priority: string; status: string }) => {
-    const res = await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const project = await res.json();
       setProjects((prev) => [...prev, project]);
       setAddingTo(null);
+    } catch {
+      setError(true);
+      // Auto-clear error after 3 seconds
+      setTimeout(() => setError(false), 3000);
     }
   };
 

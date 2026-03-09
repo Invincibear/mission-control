@@ -31,13 +31,14 @@ const AGENT_COLORS = [
 export default function OfficePage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const liveStatuses = useAgentStatus();
 
   useEffect(() => {
     fetch('/api/agents')
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then(setAgents)
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -99,7 +100,11 @@ export default function OfficePage() {
         </div>
       </div>
       <div className="flex-1 min-h-0">
-        {loading ? (
+        {error ? (
+          <div className="w-full h-full flex items-center justify-center bg-bg-primary">
+            <div className="text-error text-sm">Failed to load agents. Check that openclaw.json exists.</div>
+          </div>
+        ) : loading ? (
           <div className="w-full h-full flex items-center justify-center bg-bg-primary">
             <div className="flex flex-col items-center gap-3 text-text-muted">
               <Loader2 className="w-6 h-6 animate-spin" />
