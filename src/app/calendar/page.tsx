@@ -16,9 +16,9 @@ const FullCalendar = dynamic(
 interface CronJob {
   id: string;
   name: string;
+  enabled: boolean;
   schedule: string;
   nextRun: string;
-  status: string;
 }
 
 interface Project {
@@ -31,7 +31,7 @@ interface Project {
 
 function cronToEvents(crons: CronJob[]): EventInput[] {
   return crons
-    .filter((c) => c.status === 'active')
+    .filter((c) => c.enabled)
     .map((cron) => ({
       id: `cron-${cron.id}`,
       title: cron.name,

@@ -4,6 +4,8 @@ import { getDb, type Project } from '@/lib/db';
 import { getMemorySources } from '@/lib/memory';
 import { getCronSummary } from '@/lib/crons';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const agents = getAgents();

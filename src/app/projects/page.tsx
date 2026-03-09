@@ -94,6 +94,7 @@ function ProjectCard({
             <h3 className="text-sm font-medium truncate">{project.title}</h3>
             <button
               onClick={() => onDelete(project.id)}
+              aria-label={`Delete ${project.title}`}
               className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-error transition-all"
             >
               <X className="w-3.5 h-3.5" />
@@ -332,6 +333,7 @@ export default function ProjectsPage() {
                     </div>
                     <button
                       onClick={() => setAddingTo(addingTo === column.id ? null : column.id)}
+                      aria-label={`Add project to ${column.label}`}
                       className="text-text-muted hover:text-text-primary transition-colors"
                     >
                       <Plus className="w-4 h-4" />

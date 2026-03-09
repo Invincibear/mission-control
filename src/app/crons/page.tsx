@@ -286,15 +286,15 @@ function CronRow({
           <td colSpan={6} className="px-4 py-3 bg-bg-primary/50">
             <div className="grid grid-cols-3 gap-4 mb-3">
               <div>
-                <label className="text-xs text-text-muted uppercase tracking-wide">Session Target</label>
+                <span className="text-xs text-text-muted uppercase tracking-wide">Session Target</span>
                 <p className="text-sm font-mono mt-0.5">{cron.sessionTarget}</p>
               </div>
               <div>
-                <label className="text-xs text-text-muted uppercase tracking-wide">Payload Type</label>
+                <span className="text-xs text-text-muted uppercase tracking-wide">Payload Type</span>
                 <p className="text-sm font-mono mt-0.5">{cron.payloadKind}</p>
               </div>
               <div>
-                <label className="text-xs text-text-muted uppercase tracking-wide">Last Duration</label>
+                <span className="text-xs text-text-muted uppercase tracking-wide">Last Duration</span>
                 <p className="text-sm font-mono mt-0.5 flex items-center gap-1">
                   <Timer className="w-3 h-3 text-text-muted" />
                   {formatDuration(cron.lastDurationMs)}
@@ -303,7 +303,7 @@ function CronRow({
             </div>
             {cron.payloadPreview && (
               <div className="mb-3">
-                <label className="text-xs text-text-muted uppercase tracking-wide">Payload Preview</label>
+                <span className="text-xs text-text-muted uppercase tracking-wide">Payload Preview</span>
                 <p className="text-xs text-text-secondary mt-1 bg-bg-tertiary rounded p-2 font-mono leading-relaxed">
                   {cron.payloadPreview}
                 </p>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb, type Project } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
+export const dynamic = 'force-dynamic';
+
 const VALID_STATUSES = ['concept', 'todo', 'active', 'in-review', 'done'] as const;
 const VALID_PRIORITIES = ['low', 'medium', 'high', 'critical'] as const;
 

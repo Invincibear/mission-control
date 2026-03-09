@@ -99,6 +99,8 @@ export default function AgentsPage() {
             <div key={agent.id} className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => toggleExpand(agent.id)}
+                aria-expanded={expanded === agent.id}
+                aria-label={`${expanded === agent.id ? 'Collapse' : 'Expand'} ${agent.name} details`}
                 className="w-full p-4 flex items-center gap-4 hover:bg-bg-hover transition-colors text-left"
               >
                 <div className={`w-10 h-10 rounded-lg ${agentColors[i % agentColors.length]} flex items-center justify-center`}>
@@ -136,7 +138,7 @@ export default function AgentsPage() {
                 <div className="border-t border-border p-4 bg-bg-primary/50">
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="text-xs text-text-muted uppercase tracking-wide">Model</label>
+                      <span className="text-xs text-text-muted uppercase tracking-wide">Model</span>
                       <p className="text-sm font-mono mt-1">{agent.model.primary}</p>
                       {agent.model.fallbacks && agent.model.fallbacks.length > 0 && (
                         <p className="text-xs text-text-muted mt-0.5">
@@ -145,12 +147,12 @@ export default function AgentsPage() {
                       )}
                     </div>
                     <div>
-                      <label className="text-xs text-text-muted uppercase tracking-wide">Workspace</label>
+                      <span className="text-xs text-text-muted uppercase tracking-wide">Workspace</span>
                       <p className="text-sm font-mono mt-1">{agent.workspace}</p>
                     </div>
                     {agent.heartbeat && (
                       <div>
-                        <label className="text-xs text-text-muted uppercase tracking-wide">Heartbeat</label>
+                        <span className="text-xs text-text-muted uppercase tracking-wide">Heartbeat</span>
                         <p className="text-sm font-mono mt-1">Every {agent.heartbeat.every}</p>
                       </div>
                     )}
