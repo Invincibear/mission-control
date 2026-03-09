@@ -40,22 +40,32 @@ export function getAgents(): AgentDef[] {
   const agents = config.agents as AgentsConfig;
   const defaults = agents.defaults;
 
-  // Default agent (Cass)
-  const defaultAgent: AgentDef = {
-    id: 'cass',
-    name: 'Cass',
-    workspace: defaults.workspace.replace('~', homedir()),
-    model: defaults.model,
-    heartbeat: defaults.heartbeat,
-  };
-
-  // Additional agents from list
+  // Build agents from the explicit list, applying defaults
   const listedAgents = agents.list.map((a) => ({
     ...a,
-    workspace: a.workspace.replace('~', homedir()),
+    workspace: (a.workspace || defaults.workspace).replace('~', homedir()),
     model: a.model || defaults.model,
     heartbeat: a.heartbeat || defaults.heartbeat,
   }));
+
+  // If no agent in the list uses the default workspace, add a default agent
+  const defaultWorkspace = defaults.workspace.replace('~', homedir());
+  const hasDefault = listedAgents.some(
+    (a) => a.workspace === defaultWorkspace && a.id !== 'smc'
+  );
+
+  if (hasDefault) {
+    return listedAgents;
+  }
+
+  // Fallback: create a default agent entry
+  const defaultAgent: AgentDef = {
+    id: 'main',
+    name: 'Cass',
+    workspace: defaultWorkspace,
+    model: defaults.model,
+    heartbeat: defaults.heartbeat,
+  };
 
   return [defaultAgent, ...listedAgents];
 }
