@@ -72,29 +72,29 @@ export default function AgentAvatar({
           {/* Cass: short-shorts + bare legs */}
           {/* Short shorts */}
           <mesh position={[0, 0.38, 0]} castShadow>
-            <capsuleGeometry args={[0.12, 0.04, 4, 8]} />
+            <capsuleGeometry args={[0.08, 0.04, 4, 8]} />
             <meshStandardMaterial color={pantsColor} roughness={0.7} />
           </mesh>
-          {/* Left leg — bare skin */}
-          <mesh position={[-0.07, 0.18, 0]} castShadow>
-            <capsuleGeometry args={[0.048, 0.2, 4, 8]} />
+          {/* Left leg — bare skin, slim */}
+          <mesh position={[-0.05, 0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.032, 0.2, 4, 8]} />
             <meshStandardMaterial color={skinColor} roughness={0.6} />
           </mesh>
-          {/* Right leg — bare skin */}
-          <mesh position={[0.07, 0.18, 0]} castShadow>
-            <capsuleGeometry args={[0.048, 0.2, 4, 8]} />
+          {/* Right leg — bare skin, slim */}
+          <mesh position={[0.05, 0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.032, 0.2, 4, 8]} />
             <meshStandardMaterial color={skinColor} roughness={0.6} />
           </mesh>
         </>
       ) : (
         <>
           {/* Other agents: full pants */}
-          <mesh position={[-0.06, 0.2, 0]} castShadow>
-            <capsuleGeometry args={[0.05, 0.18, 4, 8]} />
+          <mesh position={[-0.05, 0.2, 0]} castShadow>
+            <capsuleGeometry args={[0.04, 0.18, 4, 8]} />
             <meshStandardMaterial color={pantsColor} roughness={0.8} />
           </mesh>
-          <mesh position={[0.06, 0.2, 0]} castShadow>
-            <capsuleGeometry args={[0.05, 0.18, 4, 8]} />
+          <mesh position={[0.05, 0.2, 0]} castShadow>
+            <capsuleGeometry args={[0.04, 0.18, 4, 8]} />
             <meshStandardMaterial color={pantsColor} roughness={0.8} />
           </mesh>
         </>
@@ -112,64 +112,64 @@ export default function AgentAvatar({
       {/* ---- BODY ---- */}
       {isCass ? (
         <>
-          {/* Cass: curvy figure with tank top */}
-          {/* Waist — narrow */}
+          {/* Cass: slim figure with tank top */}
+          {/* Waist — slim */}
           <mesh position={[0, 0.48, 0]} castShadow>
-            <capsuleGeometry args={[0.1, 0.06, 6, 8]} />
+            <capsuleGeometry args={[0.07, 0.06, 6, 8]} />
             <meshStandardMaterial color={shirtColor} roughness={0.7} />
           </mesh>
-          {/* Chest — fuller */}
+          {/* Chest */}
           <mesh position={[0, 0.62, 0]} castShadow>
-            <capsuleGeometry args={[0.15, 0.12, 6, 8]} />
+            <capsuleGeometry args={[0.09, 0.1, 6, 8]} />
             <meshStandardMaterial color={shirtColor} roughness={0.7} />
           </mesh>
-          {/* Bust — two spheres for shape */}
-          <mesh position={[-0.06, 0.62, 0.08]} castShadow>
-            <sphereGeometry args={[0.07, 8, 8]} />
+          {/* Bust */}
+          <mesh position={[-0.04, 0.62, 0.06]} castShadow>
+            <sphereGeometry args={[0.05, 8, 8]} />
             <meshStandardMaterial color={shirtColor} roughness={0.7} />
           </mesh>
-          <mesh position={[0.06, 0.62, 0.08]} castShadow>
-            <sphereGeometry args={[0.07, 8, 8]} />
+          <mesh position={[0.04, 0.62, 0.06]} castShadow>
+            <sphereGeometry args={[0.05, 8, 8]} />
             <meshStandardMaterial color={shirtColor} roughness={0.7} />
           </mesh>
-          {/* Tank top straps (skin visible at shoulders) */}
-          <mesh position={[-0.1, 0.72, 0]}>
-            <capsuleGeometry args={[0.03, 0.04, 4, 6]} />
+          {/* Bare shoulders (skin) */}
+          <mesh position={[-0.1, 0.7, 0]}>
+            <sphereGeometry args={[0.03, 6, 6]} />
             <meshStandardMaterial color={skinColor} roughness={0.6} />
           </mesh>
-          <mesh position={[0.1, 0.72, 0]}>
-            <capsuleGeometry args={[0.03, 0.04, 4, 6]} />
+          <mesh position={[0.1, 0.7, 0]}>
+            <sphereGeometry args={[0.03, 6, 6]} />
             <meshStandardMaterial color={skinColor} roughness={0.6} />
           </mesh>
-          {/* Thin strap lines */}
-          <mesh position={[-0.08, 0.74, 0.04]}>
-            <boxGeometry args={[0.015, 0.06, 0.01]} />
+          {/* Thin straps */}
+          <mesh position={[-0.07, 0.73, 0.03]}>
+            <boxGeometry args={[0.012, 0.05, 0.008]} />
             <meshStandardMaterial color={shirtColor} />
           </mesh>
-          <mesh position={[0.08, 0.74, 0.04]}>
-            <boxGeometry args={[0.015, 0.06, 0.01]} />
+          <mesh position={[0.07, 0.73, 0.03]}>
+            <boxGeometry args={[0.012, 0.05, 0.008]} />
             <meshStandardMaterial color={shirtColor} />
           </mesh>
         </>
       ) : (
         /* Other agents: normal body */
         <mesh position={[0, 0.52, 0]} castShadow>
-          <capsuleGeometry args={[0.14, 0.22, 6, 8]} />
+          <capsuleGeometry args={[0.1, 0.22, 6, 8]} />
           <meshStandardMaterial color={shirtColor} roughness={0.7} />
         </mesh>
       )}
 
       {/* ---- ARMS ---- */}
       {/* Left arm */}
-      <group ref={leftArmRef} position={[isCass ? -0.19 : -0.18, 0.65, 0]}>
+      <group ref={leftArmRef} position={[isCass ? -0.13 : -0.14, 0.65, 0]}>
         {/* Upper arm — skin for Cass (tank top), shirt for others */}
         <mesh position={[0, -0.1, 0]} castShadow>
-          <capsuleGeometry args={[0.038, 0.14, 4, 8]} />
+          <capsuleGeometry args={[isCass ? 0.025 : 0.035, 0.14, 4, 8]} />
           <meshStandardMaterial color={isCass ? skinColor : shirtColor} roughness={0.6} />
         </mesh>
         {/* Forearm */}
         <mesh position={[0, -0.22, 0]} castShadow>
-          <capsuleGeometry args={[0.032, 0.1, 4, 8]} />
+          <capsuleGeometry args={[isCass ? 0.022 : 0.03, 0.1, 4, 8]} />
           <meshStandardMaterial color={skinColor} roughness={0.6} />
         </mesh>
         {/* Tattoo bands on left arm (Cass only) */}
@@ -205,13 +205,13 @@ export default function AgentAvatar({
         </mesh>
       </group>
       {/* Right arm */}
-      <group ref={rightArmRef} position={[isCass ? 0.19 : 0.18, 0.65, 0]}>
+      <group ref={rightArmRef} position={[isCass ? 0.13 : 0.14, 0.65, 0]}>
         <mesh position={[0, -0.1, 0]} castShadow>
-          <capsuleGeometry args={[0.038, 0.14, 4, 8]} />
+          <capsuleGeometry args={[isCass ? 0.025 : 0.035, 0.14, 4, 8]} />
           <meshStandardMaterial color={isCass ? skinColor : shirtColor} roughness={0.6} />
         </mesh>
         <mesh position={[0, -0.22, 0]} castShadow>
-          <capsuleGeometry args={[0.032, 0.1, 4, 8]} />
+          <capsuleGeometry args={[isCass ? 0.022 : 0.03, 0.1, 4, 8]} />
           <meshStandardMaterial color={skinColor} roughness={0.6} />
         </mesh>
         {/* Tattoo on right arm (Cass only) — different pattern */}
